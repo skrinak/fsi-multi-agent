@@ -10,7 +10,7 @@ Every action reflects an underlying decision. When multiple actions stem from co
 
 Principle #4: Desing for enterprise productivity (not just individual task augmentation)
 Use Agentic systems when decision and automation are needed 
-![image](https://github.com/user-attachments/assets/ab7bfede-6855-464c-8453-ada9d883565b)
+
 
 In this folder we will provide Jupyter Notebook examples on how to get started with different Strands Agents functionalities.
 

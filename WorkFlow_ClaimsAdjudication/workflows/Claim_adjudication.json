@@ -1,7 +1,7 @@
 {
   "workflow_id": "Claim_adjudication",
-  "created_at": "2025-07-11T02:11:44.779472+00:00",
-  "status": "completed",
+  "created_at": "2025-07-01T20:18:19.475775+00:00",
+  "status": "created",
   "tasks": [
     {
       "task_id": "fnol_processing",
@@ -31,19 +31,19 @@
   "current_task_index": 0,
   "task_results": {
     "fnol_processing": {
-      "status": "completed",
-      "result": [],
-      "completed_at": "2025-07-11T02:12:01.351880+00:00"
+      "status": "pending",
+      "result": null,
+      "priority": 5
     },
     "appraisal": {
-      "status": "completed",
-      "result": [],
-      "completed_at": "2025-07-11T02:12:18.211317+00:00"
+      "status": "pending",
+      "result": null,
+      "priority": 3
     },
     "settlement": {
-      "status": "completed",
-      "result": [],
-      "completed_at": "2025-07-11T02:12:46.242033+00:00"
+      "status": "pending",
+      "result": null,
+      "priority": 2
     }
   },
   "parallel_execution": true

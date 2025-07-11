@@ -1,7 +1,7 @@
 {
-  "workflow_id": "Claim_adjudication",
-  "created_at": "2025-07-11T02:11:44.779472+00:00",
-  "status": "completed",
+  "workflow_id": "Claim_processing",
+  "created_at": "2025-06-30T23:15:42.816638+00:00",
+  "status": "running",
   "tasks": [
     {
       "task_id": "fnol_processing",
@@ -33,17 +33,17 @@
     "fnol_processing": {
       "status": "completed",
       "result": [],
-      "completed_at": "2025-07-11T02:12:01.351880+00:00"
+      "completed_at": "2025-06-30T23:15:57.568745+00:00"
     },
     "appraisal": {
       "status": "completed",
       "result": [],
-      "completed_at": "2025-07-11T02:12:18.211317+00:00"
+      "completed_at": "2025-06-30T23:16:15.215641+00:00"
     },
     "settlement": {
       "status": "completed",
       "result": [],
-      "completed_at": "2025-07-11T02:12:46.242033+00:00"
+      "completed_at": "2025-06-30T23:16:33.498009+00:00"
     }
   },
   "parallel_execution": true

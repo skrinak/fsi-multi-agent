@@ -1,7 +1,7 @@
 {
   "workflow_id": "comprehensive_claim_adjudication",
-  "created_at": "2025-07-14T15:29:28.188145+00:00",
-  "status": "created",
+  "created_at": "2025-07-16T01:39:12.348501+00:00",
+  "status": "completed",
   "tasks": [
     {
       "task_id": "fnol_processing",
@@ -59,34 +59,34 @@
   "current_task_index": 0,
   "task_results": {
     "fnol_processing": {
-      "status": "pending",
-      "result": null,
-      "priority": 5
+      "status": "completed",
+      "result": [],
+      "completed_at": "2025-07-16T01:40:03.753139+00:00"
     },
     "policy_verification": {
-      "status": "pending",
-      "result": null,
-      "priority": 4
+      "status": "completed",
+      "result": [],
+      "completed_at": "2025-07-16T01:40:21.291705+00:00"
     },
     "fraud_detection": {
-      "status": "pending",
-      "result": null,
-      "priority": 4
+      "status": "completed",
+      "result": [],
+      "completed_at": "2025-07-16T01:40:22.708008+00:00"
     },
     "damage_appraisal": {
-      "status": "pending",
-      "result": null,
-      "priority": 3
+      "status": "completed",
+      "result": [],
+      "completed_at": "2025-07-16T01:41:01.255631+00:00"
     },
     "settlement_calculation": {
-      "status": "pending",
-      "result": null,
-      "priority": 2
+      "status": "completed",
+      "result": [],
+      "completed_at": "2025-07-16T01:41:37.942797+00:00"
     },
     "final_review": {
-      "status": "pending",
-      "result": null,
-      "priority": 1
+      "status": "completed",
+      "result": [],
+      "completed_at": "2025-07-16T01:42:24.963113+00:00"
     }
   },
   "parallel_execution": true

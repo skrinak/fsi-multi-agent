@@ -103,6 +103,20 @@ cache/
 *.crt
 *.p12
 *.pfx
+secrets/
+secret.*
+api_keys.*
+credentials.*
+token.*
+*.secret
+
+# Configuration files that may contain secrets
+config/production.*
+config/staging.*
+config/local.*
+*.config.local
+.secrets
+.credentials
 
 # Database
 *.db
@@ -113,3 +127,22 @@ cache/
 *.exe
 *.dll
 *.dylib
+
+# Docker secrets
+docker-compose.override.yml
+.dockerignore.local
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+terraform.tfvars
+*.auto.tfvars
+
+# Additional sensitive patterns
+*.backup
+backup.*
+*_backup
+private_*
+confidential_*
+internal_*

@@ -1,0 +1,345 @@
+=== SLIDE 1 ===
+New York
+, July 16
+th
+, 2025
+Welcome slide
+
+=== SLIDE 8 ===
+The evolution into Agentic AI
+INCREASING AUTONOMY AND BUSINESS IMPACT 
+Generative AI
+ assistants
+Generative AI agents
+Agentic AI 
+systems
+Follow a set of rules Automate repetitive tasks
+Achieve a singular goal
+Address broader range of tasks
+Automate entire workflows
+Fully autonomous
+Multi-agent systems
+Mimic human logic and reasoning
+MORE
+HUMAN
+OVERSIGHT
+LESS
+HUMAN
+OVERSIGHT
+
+=== SLIDE 30 ===
+Agent-to-Agent Protocol (A2A)
+A2A support with AWS Strands Agents
+Key features
+Standardized communication
+Agent discovery: via "Agent Cards"
+Flexible interaction
+Rich data exchange
+Enterprise-ready
+Applications
+Multi-agent workflows
+Agent marketplaces
+Cross-platform integration
+Distributed AI systems
+A2A protocol
+Organizational or technological boundaries
+Bedrock LLM
+Strands SDK
+Strands Agent
+MCP
+APIs & Enterprise Applications
+LLM
+Agent Framework
+Agent
+MCP
+APIs & Enterprise Applications
+
+=== SLIDE 57 ===
+Workflow Patterns: 
+Sequential
+Each agent completes its task before passing the result to the next agent in the chain
+Reasoning 
+p
+aradigm
+C
+hain-of-thought processing, where complex tasks are broken down into manageable steps with clear dependencies and information flow
+Performance considerations
+S
+ystem speed is limited by its slowest component
+Applications
+Appropriate for approval processes, e.g. claims adjudication, loans approvals
+
+=== SLIDE 72 ===
+Graph Patterns: 
+Star, Hierarchical
+Centralized workflows
+Reasoning 
+p
+aradigm
+Layered processing 
+and delegation
+C
+omplex tasks are decomposed and managed through clear chains of responsibility
+Applications
+Appropriate for task triage and routing, e.g. payment gateway, claims routing, loan underwriting, customer service.
+Performance considerations
+Single point of failure
+Bottlenecks
+Coordinator
+Specialist 1
+Specialist 2
+Specialist 3
+Executive
+Manager 1
+Worker 1
+Manager  2
+Worker 2
+Worker 3
+Worker 4
+
+=== SLIDE 100 ===
+Swarm Patterns: 
+Mesh
+All agents can communicate directly with each other with Shared Memory
+Reasoning 
+p
+aradigm
+C
+ollaborative reasoning, information sharing and emergent intelligence, allowing complex behaviors to arise from relatively simple agent interactions
+Application
+Appropriate for distributed collaboration, e.g. distributed research, distributed trade settlement, peer-to-peer review
+Performance considerations
+Communication 
+o
+verhead
+Debugging can be challenging
+Agent A
+Agent D
+Agent C
+Agent B
+Agent E
+
+=== SLIDE 122 ===
+Swarm Patterns: 
+Parallel
+Multiple agents operate independently and simultaneously on different tasks
+Reasoning 
+p
+aradigm
+D
+ivide-and-conquer approach to problem-solving; specialized agents to focus on distinct aspects of a task using their particular expertise
+Applications
+Appropriate for task routing, e.g. claims routing, customer service triage, payment processing gateway
+Performance considerations
+E
+xcel at throughput, but they require careful orchestration to handle data dependencies and race conditions
+Sub-Agent 2 
+Task
+Sub-Agent 4
+Sub-Agent 3
+Sub-Agent 1
+
+=== SLIDE 142 ===
+Other Patterns
+Loop
+Iterative processing cycles where agents continuously refine outputs based on feedback 
+Dynamic system capable of progressive improvement through repeated evaluations and adjustments
+Composite patterns
+Star + Swarm Mesh
+Agent 1
+Agent 2
+IN
+OUT
+Coordinator
+Sub-Agent 2
+Sub-Agent 3
+Swarm of 
+Agents
+
+=== SLIDE 159 ===
+Whiteboard and Architecture – 
+FSI Use Cases
+
+=== SLIDE 163 ===
+FSI Use Case Examples
+Autonomous claims adjudication
+Process First Notification of Loss (FNOL), retrieves policy details, assess damages, validates information against external sources (e.g., repair shop estimates), and settles claim
+Pattern —>
+Workflow: Sequential
+Automated financial research  and analysis
+An agentic system ingests  financial reports and news from multiple sources, evaluates risks, investment opportunities and generates a summary report with key insights
+Pattern —>
+Swarm: Mesh
+Intelligent loan application processing
+Orchestrates the entire origination process, from validating customer information across different systems to running validation checks via API and scheduling tasks
+Pattern —> 
+Graph: Hierarchical
+
+=== SLIDE 178 ===
+...When to use Workflows vs Graph vs Swam ?
+Agent Graph
+Precise control over agents' interactions
+Well-defined data flow
+Persistent agent state
+Specialized agent roles
+Compliance-driven processes
+Agent Swarm 
+Decentralized Control
+Distributed problem solving 
+Information sharing
+Specialization
+Redundancy
+Emergent intelligence
+ Agent Workflow
+Sequential Dependencies
+Complex multi-step
+Context Preservation
+Long-Running processes
+State Management
+
+=== SLIDE 200 ===
+Multi-Agent System Patterns in Financial Services: 
+Alfredo Castillo
+FSI304
+He/Him
+Sr Solutions Architect – FSI GenAI
+AWS
+Maira Tanke
+She/Her
+Tech 
+Lead AI 
+Agents
+AWS
+Architectures for Next-Gen AI Solutions
+
+=== SLIDE 215 ===
+Agentic Principles 
+Use Case Qualification
+Principle #1
+Do not force-fit workloads into an agentic collaboration pattern
+Principle #2
+Design for enterprise productivity (not just individual task augmentation)
+Patterns Development
+Principle #3
+Acknowledge tradeoffs with agency, control, and reliability
+Principle #4
+Share context across Swarm 
+Principle #5
+Recognize action-decision relationships
+
+=== SLIDE 230 ===
+Simplifying application security management
+Launch
+Easily apply rules to selected resources with just one click 
+Select from expert-curated protection packs optimized for your use case
+Amazon Bedrock 
+AgentCore
+PREVIEW
+NEW
+Deploy and operate highly effective agents securely, at scale using any framework and model
+
+=== SLIDE 241 ===
+….. Now Go Build !! 
+Strands Agents SDK 
+Strands Samples
+AgentCore Samples
+
+=== SLIDE 247 ===
+Thank you
+Alfredo Castillo
+linkedin.com
+/in/
+castilloalfredo
+Maira Tanke
+linkedin.com
+/in/
+mairaladeira
+
+=== SLIDE 258 ===
+Agenda
+01
+Why multi-agents?
+02
+Collaboration patterns
+03
+Whiteboarding – use case examples 
+04
+How this can help you
+
+=== SLIDE 269 ===
+Why Multi-Agent ?
+
+=== SLIDE 272 ===
+database
+Commission Service
+Single agents start small . . . but if you take it too far
+Microservice
+database
+flooding policies
+Terminology
+Third-party service
+Machine Learning
+database
+Underwriting Agent
+Start-application
+get-documentation
+get-actuarial-data
+rules-validation
+Underwriting Tools
+Commission Calculation Tools
+start-new-commission
+extend-commission
+close-commission
+get-details
+Agency Brokers Tools
+enroll-agency
+terminate-agency
+Risk Modeling Tools
+risk-evaluation
+claims-reserve
+Chart-analysis
+submit-review
+Terminology Knowledge Base
+Search Terminology
+Flooding Knowledge Base
+Get-flooding-policies
+
+=== SLIDE 307 ===
+. . . it leads to challenges
+Coding gets complicated
+Complex prompts to limit hallucinations
+Fragile, hard to maintain
+Agent gets confused
+Calling wrong tools
+Passing wrong arguments
+Inconsistent responses
+Agent gets slower, more expensive
+Frontier models needed
+Prompt sizes grow
+Agents retry steps
+
+=== SLIDE 321 ===
+Other Limitations of Single AI Agents
+Lack of collaboration
+No distributed problem solving 
+Single task execution
+No parallel task processing
+Context window limits
+Context degradation syndrome
+
+=== SLIDE 330 ===
+Domain-specific expertise
+Increase
+ processing 
+s
+peed through parallelization 
+Collaboration 
+ 
+Plan and execute complex tasks across agents
+Reduce hallucination with cross-verification
+Extending context window
+Multi-Agent Systems
+Overcoming limitations of single agents
+
+=== SLIDE 344 ===
+Multi-Agent Patterns

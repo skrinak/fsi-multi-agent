@@ -5,6 +5,48 @@
 
 ---
 
+## Table of Contents
+
+- [Introduction to Agentic AI and Multi-Agent Systems](#introduction-to-agentic-ai-and-multi-agent-systems)
+  - [What Are Agentic AI Systems?](#what-are-agentic-ai-systems)
+  - [The Evolution to Multi-Agent Architectures](#the-evolution-to-multi-agent-architectures)
+    - [Limitations of Single AI Agents](#limitations-of-single-ai-agents)
+    - [Multi-Agent Systems: Overcoming Single Agent Limitations](#multi-agent-systems-overcoming-single-agent-limitations)
+  - [Applications in Financial Services](#applications-in-financial-services)
+  - [Agent-to-Agent Protocol (A2A) with AWS Strands Agents](#agent-to-agent-protocol-a2a-with-aws-strands-agents)
+- [Multi-Agent Coordination Patterns](#multi-agent-coordination-patterns)
+  - [1. Sequential Workflow Patterns](#1-sequential-workflow-patterns)
+  - [2. Hierarchical Graph Patterns (Star Pattern)](#2-hierarchical-graph-patterns-star-pattern)
+  - [3. Swarm Patterns: Mesh](#3-swarm-patterns-mesh)
+  - [4. Swarm Patterns: Parallel](#4-swarm-patterns-parallel)
+  - [5. Loop and Composite Patterns](#5-loop-and-composite-patterns)
+  - [When to Choose Each Pattern](#when-to-choose-each-pattern)
+- [Core Design Principles - Quick Reference](#core-design-principles---quick-reference)
+- [Enterprise Design Principles](#enterprise-design-principles)
+  - [From Prototype to Production](#from-prototype-to-production)
+  - [Principle #1: Workflow-First Design](#principle-1-workflow-first-design)
+  - [Principle #2: Enterprise Productivity Focus](#principle-2-enterprise-productivity-focus)
+  - [Principle #3: Balance Agency, Control, and Reliability](#principle-3-balance-agency-control-and-reliability)
+  - [Principle #4: Comprehensive Context Sharing](#principle-4-comprehensive-context-sharing)
+  - [Principle #5: Decision-Action Alignment](#principle-5-decision-action-alignment)
+- [Implementation Examples](#implementation-examples)
+  - [1. Autonomous Claims Adjudication System](#1-autonomous-claims-adjudication-system)
+  - [2. Automated Financial Research and Analysis Platform](#2-automated-financial-research-and-analysis-platform)
+  - [3. Intelligent Loan Underwriting System](#3-intelligent-loan-underwriting-system)
+- [Learning Path: A Progressive Journey Through Multi-Agent Systems](#learning-path-a-progressive-journey-through-multi-agent-systems)
+  - [Phase 1: Foundational Understanding](#phase-1-foundational-understanding)
+  - [Phase 2: Single Agent Mastery](#phase-2-single-agent-mastery)
+  - [Phase 3: Multi-Agent Coordination](#phase-3-multi-agent-coordination)
+  - [Phase 4: Enterprise-Scale Systems](#phase-4-enterprise-scale-systems)
+  - [Files That Build Upon Each Other](#files-that-build-upon-each-other)
+- [Prerequisites](#prerequisites)
+- [Additional Learning Resources](#additional-learning-resources)
+  - [Academic Papers](#academic-papers)
+  - [Industry Reports](#industry-reports)
+  - [Online Resources](#online-resources)
+
+---
+
 ## Introduction to Agentic AI and Multi-Agent Systems
 
 ### What Are Agentic AI Systems?
@@ -176,7 +218,14 @@ Understanding different coordination patterns is crucial for designing effective
 
 ---
 
-## Detailed Principle Descriptions
+## Enterprise Design Principles
+### From Prototype to Production
+
+In emerging technology fields like agentic AI, the gap between technical capability and production-ready enterprise deployment is often measured in years rather than months. While tutorials and proof-of-concepts can demonstrate how to create individual agents and basic coordination mechanisms, the journey to reliable, scalable, and compliant multi-agent systems requires adherence to sophisticated design principles that have been validated through real-world enterprise deployments.
+
+This distinction becomes particularly critical in highly-regulated industries such as financial services, where system failures can result in regulatory violations, financial losses, and reputational damage. The ability to create an agent that processes a loan application is fundamentally different from deploying a multi-agent system that can handle thousands of applications daily while maintaining audit trails, ensuring compliance with evolving regulations, integrating with legacy enterprise systems, and providing the reliability and predictability required for fiduciary responsibilities.
+
+The five principles outlined below represent distilled wisdom from enterprise deployments and academic research, providing a framework for bridging the gap between technical possibility and business reality. They address the operational, regulatory, and architectural challenges that distinguish production systems from demonstrations, ensuring that multi-agent implementations deliver sustained business value while meeting the rigorous standards expected in institutional environments.
 
 ### Principle #1: Workflow-First Design
 *Identify business decision frictions first, then design multi-agent workflows around proven collaboration patterns*

@@ -17,8 +17,9 @@ from strands import Agent
 from strands.models import BedrockModel
 from strands_tools import think, http_request
 
-# Load environment variables
-load_dotenv()
+# Load environment variables - check multiple locations
+load_dotenv()  # Current directory
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))  # Parent directory
 
 # Try to import swarm tools - graceful fallback if not available
 try:

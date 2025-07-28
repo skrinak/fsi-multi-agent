@@ -17,8 +17,9 @@ from strands import Agent, tool
 from strands.models.bedrock import BedrockModel
 from strands_tools import think, http_request
 
-# Load environment variables
-load_dotenv()
+# Load environment variables - check multiple locations
+load_dotenv()  # Current directory
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))  # Parent directory
 
 
 @tool

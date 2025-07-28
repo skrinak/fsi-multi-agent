@@ -2,8 +2,10 @@
 """
 Stock Price Analysis Tool
 
-A command-line tool that uses the Strands Agent SDK and Finnhub API to analyze stock prices.
-Provides real-time quotes, historical data, and technical analysis for equity research.
+A command-line tool that uses hybrid APIs for comprehensive stock analysis:
+- Finnhub API: Real-time quotes, company profiles, current market data
+- Financial Modeling Prep API: Historical OHLC data and 90-day price ranges
+Provides complete technical analysis for equity research with reliable data sources.
 """
 
 import datetime as dt
@@ -14,6 +16,7 @@ from dotenv import load_dotenv
 
 # Third-party imports
 import finnhub
+import requests
 from strands import Agent, tool
 from strands.models.bedrock import BedrockModel
 from strands_tools import think, http_request
@@ -25,7 +28,8 @@ load_dotenv()
 @tool
 def get_stock_prices(ticker: str) -> Union[Dict, str]:
     """
-    Fetches current and historical stock price data for a given ticker using Finnhub API.
+    Fetches current and historical stock price data for a given ticker using hybrid API approach.
+    Uses Finnhub API for real-time quotes and Financial Modeling Prep for historical data.
     
     Args:
         ticker: Stock ticker symbol (e.g., 'AAPL', 'MSFT')
@@ -43,6 +47,7 @@ def get_stock_prices(ticker: str) -> Union[Dict, str]:
         if not api_key:
             return {"status": "error", "message": "FINNHUB_API_KEY not found in environment variables"}
         
+
         finnhub_client = finnhub.Client(api_key=api_key)
         ticker = ticker.upper().strip()
 
@@ -54,17 +59,35 @@ def get_stock_prices(ticker: str) -> Union[Dict, str]:
         except Exception as e:
             return {"status": "error", "message": f"Error fetching quote data: {str(e)}"}
 
-        # Get historical data (3 months)
+        # Get historical data (90 days) using Financial Modeling Prep
         try:
-            # Calculate timestamps for 3 months ago and now
-            end_time = int(time.time())
-            start_time = end_time - (90 * 24 * 60 * 60)  # 90 days ago
+            # Get FMP API key
+            fmp_api_key = os.getenv('FINANCIAL_MODELING_PREP_API_KEY')
+            if not fmp_api_key or fmp_api_key == 'your_fmp_api_key_here':
+                return {"status": "error", "message": "FINANCIAL_MODELING_PREP_API_KEY not configured. Sign up at financialmodelingprep.com and add your API key to .env file"}
             
-            # Get daily candle data
-            candles = finnhub_client.stock_candles(ticker, 'D', start_time, end_time)
+            # Calculate date range for 90 days
+            end_date = dt.datetime.now()
+            start_date = end_date - dt.timedelta(days=90)
             
-            if not candles or candles.get('s') != 'ok' or not candles.get('c'):
+            # FMP historical price endpoint
+            fmp_url = f"https://financialmodelingprep.com/api/v3/historical-price-full/{ticker}"
+            params = {
+                'from': start_date.strftime('%Y-%m-%d'),
+                'to': end_date.strftime('%Y-%m-%d'),
+                'apikey': fmp_api_key
+            }
+            
+            response = requests.get(fmp_url, params=params, timeout=10)
+            if response.status_code != 200:
+                return {"status": "error", "message": f"FMP API error: {response.status_code}"}
+            
+            fmp_data = response.json()
+            historical = fmp_data.get('historical', [])
+            
+            if not historical:
                 return {"status": "error", "message": f"No historical data found for ticker {ticker}"}
+                
         except Exception as e:
             return {"status": "error", "message": f"Error fetching historical data: {str(e)}"}
 
@@ -77,17 +100,17 @@ def get_stock_prices(ticker: str) -> Union[Dict, str]:
         daily_low = float(quote['l'])  # Low price of the day
         daily_open = float(quote['o'])  # Open price of the day
 
-        # Extract historical data for 90-day high/low
-        high_prices = candles['h']
-        low_prices = candles['l']
-        volumes = candles['v']
+        # Extract historical data for 90-day high/low from FMP data
+        high_prices = [day['high'] for day in historical if day.get('high')]
+        low_prices = [day['low'] for day in historical if day.get('low')]
+        volumes = [day['volume'] for day in historical if day.get('volume')]
         
         # Calculate 90-day high/low
         high_90d = max(high_prices) if high_prices else daily_high
         low_90d = min(low_prices) if low_prices else daily_low
         
-        # Get most recent volume (last trading day)
-        latest_volume = int(volumes[-1]) if volumes else 0
+        # Get most recent volume (most recent day in historical data)
+        latest_volume = int(volumes[0]) if volumes else 0  # FMP returns newest first
 
         return {
             "status": "success",
@@ -104,8 +127,8 @@ def get_stock_prices(ticker: str) -> Union[Dict, str]:
                 "high_90d": round(high_90d, 2),
                 "low_90d": round(low_90d, 2),
                 "date": dt.datetime.now().strftime("%Y-%m-%d"),
-                "data_source": "Finnhub API",
-                "historical_data_points": len(candles.get('c', [])) if candles else 0
+                "data_source": "Finnhub + FMP APIs",
+                "historical_data_points": len(historical) if historical else 0
             },
         }
 
@@ -161,8 +184,8 @@ When user provides a company name or ticker:
    - Risk Assessment
 
 4. Data Quality Notes:
-   - Data Source: Finnhub API
-   - Historical Data Points Available
+   - Real-time Data: Finnhub API
+   - Historical Data: Financial Modeling Prep API
    - Market Session Status
 </output_format>
 
@@ -173,27 +196,36 @@ When user provides a company name or ticker:
 - Note any data limitations or market closure impacts
 - Use clear, professional financial terminology
 </analysis_guidelines>""",
-        model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region="us-east-1"),
+        model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region="us-west-2"),
         tools=[get_stock_prices, http_request, think],
     )
 
 
 def main():
-    """Main function to run the stock price analysis tool with Finnhub integration."""
-    # Check for API key before starting
+    """Main function to run the stock price analysis tool with hybrid API integration."""
+    # Check for required API keys before starting
+    missing_keys = []
     if not os.getenv('FINNHUB_API_KEY'):
-        print("❌ Error: FINNHUB_API_KEY not found in environment variables")
-        print("Please add your Finnhub API key to a .env file:")
-        print("FINNHUB_API_KEY=your_api_key_here")
+        missing_keys.append('FINNHUB_API_KEY')
+    if not os.getenv('FINANCIAL_MODELING_PREP_API_KEY'):
+        missing_keys.append('FINANCIAL_MODELING_PREP_API_KEY')
+    
+    if missing_keys:
+        print(f"❌ Error: Missing API keys: {', '.join(missing_keys)}")
+        print("Please add your API keys to a .env file:")
+        if 'FINNHUB_API_KEY' in missing_keys:
+            print("FINNHUB_API_KEY=your_finnhub_key_here  # Sign up at finnhub.io")
+        if 'FINANCIAL_MODELING_PREP_API_KEY' in missing_keys:
+            print("FINANCIAL_MODELING_PREP_API_KEY=your_fmp_key_here  # Sign up at financialmodelingprep.com")
         return
 
     # Create and initialize the agent
     stock_price_agent = create_stock_price_agent()
     stock_price_agent.messages = create_initial_messages()
 
-    print("\n📈 Stock Price Analysis Tool (Finnhub API) 📊")
+    print("\n📈 Stock Price Analysis Tool (Hybrid API) 📊")
     print("=" * 50)
-    print("Enter stock ticker symbols or company names for analysis")
+    print("Real-time quotes: Finnhub | Historical data: Financial Modeling Prep")
     print("Type 'exit' to quit\n")
 
     while True:
@@ -230,6 +262,9 @@ def main():
             # Check if it's an API key issue
             if "FINNHUB_API_KEY" in str(e):
                 print("💡 Tip: Make sure your .env file contains a valid Finnhub API key")
+                break
+            elif "FINANCIAL_MODELING_PREP_API_KEY" in str(e):
+                print("💡 Tip: Make sure your .env file contains a valid Financial Modeling Prep API key")
                 break
         finally:
             # Reset conversation after each query

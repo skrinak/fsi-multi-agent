@@ -1,0 +1,109 @@
+{
+  "start_time": 1753745283.564427,
+  "tests_completed": 5,
+  "tests_passed": 5,
+  "tests_failed": 0,
+  "results": {
+    "document_processing": {
+      "documents_processed": 7,
+      "successful_extractions": 7,
+      "failed_extractions": 0,
+      "document_details": {
+        "credit_report": {
+          "pages": 10,
+          "chars": 5754,
+          "document_type": "credit_report",
+          "importance": "high"
+        },
+        "bank_statement": {
+          "pages": 3,
+          "chars": 2262,
+          "document_type": "bank_statement",
+          "importance": "medium"
+        },
+        "pay_stub": {
+          "pages": 3,
+          "chars": 1185,
+          "document_type": "pay_stub",
+          "importance": "medium"
+        },
+        "tax_return": {
+          "pages": 3,
+          "chars": 1676,
+          "document_type": "tax_return",
+          "importance": "medium"
+        },
+        "loan_application": {
+          "pages": 4,
+          "chars": 2318,
+          "document_type": "loan_application",
+          "importance": "high"
+        },
+        "property_info": {
+          "pages": 4,
+          "chars": 2183,
+          "document_type": "property_info",
+          "importance": "medium"
+        },
+        "id_verification": {
+          "pages": 2,
+          "chars": 1090,
+          "document_type": "id_verification",
+          "importance": "low"
+        }
+      },
+      "total_pages": 29
+    },
+    "fraud_detection": {
+      "fraud_score": 0.4,
+      "risk_level": "MEDIUM",
+      "detected_indicators": [
+        "loan_application: Contains test/demo/sample markers",
+        "id_verification: Contains test/demo/sample markers",
+        "ID document appears to be fake/testing document",
+        "Credit report contains masked/fake SSN"
+      ],
+      "recommendations": [
+        "Require additional verification and documentation",
+        "Conduct enhanced due diligence review",
+        "Consider manual underwriting with fraud specialist review",
+        "Verify SSN through Social Security Administration"
+      ],
+      "analysis_timestamp": "2025-07-28T16:28:03.688681"
+    },
+    "system_creation": {
+      "creation_successful": true,
+      "system_status": {
+        "toolUseId": "tooluse_agent_graph_124752438",
+        "status": "success",
+        "content": [
+          {
+            "text": "Graph test_loan_system status retrieved."
+          }
+        ]
+      },
+      "system_id": "test_loan_system"
+    },
+    "agent_communication": {
+      "hierarchy_valid": true,
+      "agent_roles_defined": {
+        "supervisor_agent": true,
+        "financial_analysis_manager": true,
+        "risk_analysis_manager": true,
+        "specialist_agents": true
+      },
+      "communication_patterns": {}
+    },
+    "loan_processing": {
+      "processing_successful": true,
+      "decision": "PENDING",
+      "confidence_score": 0.5,
+      "fraud_indicators_count": 0,
+      "recommendations_count": 0,
+      "processing_timestamp": "2025-07-28T16:28:03.890347"
+    }
+  },
+  "end_time": 1753745283.968524,
+  "total_duration": 0.4040970802307129,
+  "success_rate": 1.0
+}

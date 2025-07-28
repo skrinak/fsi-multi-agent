@@ -179,11 +179,11 @@ class FinancialSwarmArchitecture:
             "stock_price_agent": AgentSpecification(
                 name="stock_price_agent", 
                 function="Retrieves and analyzes stock price data, technical indicators",
-                data_source="Finnhub API - stock quotes and historical data",
+                data_source="Hybrid APIs - Finnhub (real-time) + FMP (historical data)",
                 output_format="JSON with OHLC, volume, price changes, technical analysis",
                 api_endpoints=[
                     "finnhub.io/api/v1/quote",
-                    "finnhub.io/api/v1/stock/candle"
+                    "financialmodelingprep.com/api/v3/historical-price-full"
                 ],
                 dependencies=["ticker_search_agent"]
             ),

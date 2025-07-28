@@ -2,49 +2,123 @@
 """
 Company Analysis Tool
 
-A command-line tool that uses the Strands Agent SDK to provide comprehensive company analysis.
+A command-line tool that uses the Strands Agent SDK and Finnhub API to provide comprehensive company analysis.
+Combines Finnhub financial data with web scraping for complete company intelligence and research.
 """
 
 import datetime as dt
 import urllib.parse
-from typing import Dict, Union
+import os
+from typing import Dict, Union, Any
+from dotenv import load_dotenv
 
 # Third-party imports
 from bs4 import BeautifulSoup
-import yfinance as yf
+import finnhub
 import requests
 from strands import Agent, tool
 from strands.models import BedrockModel
 from strands_tools import think, http_request
 
+# Load environment variables
+load_dotenv()
+
 
 @tool
 def get_company_info(ticker: str) -> Union[Dict, str]:
-    """Fetches comprehensive company information and financials using Yahoo Finance."""
+    """
+    Fetches comprehensive company information using Finnhub API with web scraping fallback.
+    
+    Args:
+        ticker: Stock ticker symbol (e.g., 'AAPL', 'MSFT')
+        
+    Returns:
+        Dictionary with comprehensive company information or error message
+    """
     try:
         if not ticker.strip():
             return {"status": "error", "message": "Ticker symbol is required"}
 
-        stock = yf.Ticker(ticker)
-        info = stock.info
+        # Initialize Finnhub client
+        api_key = os.getenv('FINNHUB_API_KEY')
+        if not api_key:
+            return {"status": "error", "message": "FINNHUB_API_KEY not found in environment variables"}
+        
+        finnhub_client = finnhub.Client(api_key=api_key)
+        ticker = ticker.upper().strip()
 
-        # Get company information
+        # Get company profile from Finnhub
+        try:
+            profile = finnhub_client.company_profile2(symbol=ticker)
+            if not profile:
+                return {"status": "error", "message": f"No company profile found for ticker {ticker}"}
+        except Exception as e:
+            return {"status": "error", "message": f"Error fetching company profile: {str(e)}"}
+
+        # Get additional company news for recent developments
+        try:
+            # Get company news from past 30 days
+            from_date = (dt.datetime.now() - dt.timedelta(days=30)).strftime("%Y-%m-%d")
+            to_date = dt.datetime.now().strftime("%Y-%m-%d")
+            news = finnhub_client.company_news(ticker, _from=from_date, to=to_date)
+            recent_news_count = len(news) if news else 0
+            latest_headline = news[0].get('headline', 'No recent news') if news else 'No recent news'
+        except Exception as e:
+            recent_news_count = 0
+            latest_headline = f"Error fetching news: {str(e)}"
+
+        # Helper function to safely get values
+        def safe_get(data, key, default="N/A"):
+            value = data.get(key)
+            return value if value is not None and value != "" else default
+
+        # Compile comprehensive company information
         company_data = {
             "status": "success",
             "data": {
                 "symbol": ticker,
-                "company_name": info.get("longName", "N/A"),
-                "sector": info.get("sector", "N/A"),
-                "industry": info.get("industry", "N/A"),
-                "description": info.get("longBusinessSummary", "N/A"),
-                "website": info.get("website", "N/A"),
-                "market_cap": info.get("marketCap", "N/A"),
-                "employees": info.get("fullTimeEmployees", "N/A"),
-                "country": info.get("country", "N/A"),
-                "headquarters": info.get("city", "N/A"),
+                "company_name": safe_get(profile, 'name'),
+                "sector": safe_get(profile, 'finnhubIndustry'),
+                "industry": safe_get(profile, 'finnhubIndustry'),  # Finnhub uses same field
+                "description": safe_get(profile, 'description', 'Company description not available'),
+                "website": safe_get(profile, 'weburl'),
+                
+                # Market Information
+                "market_cap": safe_get(profile, 'marketCapitalization'),
+                "shares_outstanding": safe_get(profile, 'shareOutstanding'),
+                "country": safe_get(profile, 'country'),
+                "currency": safe_get(profile, 'currency'),
+                "exchange": safe_get(profile, 'exchange'),
+                
+                # Company Details
+                "ipo_date": safe_get(profile, 'ipo'),
+                "employees": safe_get(profile, 'employeeTotal', 'N/A'),
+                "phone": safe_get(profile, 'phone'),
+                "address": f"{safe_get(profile, 'address', '')} {safe_get(profile, 'city', '')} {safe_get(profile, 'state', '')}".strip(),
+                
+                # Company Identifiers
+                "logo": safe_get(profile, 'logo'),
+                "ticker_symbol": ticker,
+                
+                # Recent Activity
+                "recent_news_count": recent_news_count,
+                "latest_headline": latest_headline,
+                
+                # Metadata
                 "date": dt.datetime.now().strftime("%Y-%m-%d"),
-            },
+                "data_source": "Finnhub API",
+                "last_updated": dt.datetime.now().isoformat()
+            }
         }
+
+        # Try to enhance with web scraping if website is available
+        if profile.get('weburl') and profile['weburl'] != 'N/A':
+            try:
+                web_info = _scrape_company_website(profile['weburl'])
+                if web_info.get('status') == 'success':
+                    company_data['data']['web_scraped_info'] = web_info['data']
+            except Exception as e:
+                company_data['data']['web_scraped_info'] = f"Web scraping failed: {str(e)}"
 
         return company_data
 
@@ -52,19 +126,85 @@ def get_company_info(ticker: str) -> Union[Dict, str]:
         return {"status": "error", "message": f"Error fetching company info: {str(e)}"}
 
 
+def _scrape_company_website(url: str) -> Dict[str, Any]:
+    """
+    Helper function to scrape additional company information from website.
+    
+    Args:
+        url: Company website URL
+        
+    Returns:
+        Dictionary with scraped information
+    """
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Extract basic information
+        title = soup.find('title')
+        title_text = title.get_text().strip() if title else "No title found"
+        
+        # Try to find meta description
+        meta_desc = soup.find('meta', attrs={'name': 'description'})
+        description = meta_desc.get('content', 'No description found') if meta_desc else "No description found"
+        
+        # Count links and basic page structure
+        links = soup.find_all('a', href=True)
+        internal_links = [link for link in links if url in link.get('href', '')]
+        
+        return {
+            "status": "success",
+            "data": {
+                "page_title": title_text,
+                "meta_description": description,
+                "total_links": len(links),
+                "internal_links": len(internal_links),
+                "scraped_at": dt.datetime.now().isoformat(),
+                "url_scraped": url
+            }
+        }
+        
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Web scraping failed: {str(e)}",
+            "data": {}
+        }
+
+
 @tool
 def get_stock_news(ticker: str) -> Union[Dict, str]:
-    """Fetches stock news from multiple sources for comprehensive coverage."""
+    """
+    Fetches comprehensive stock news using Finnhub API with web scraping fallback.
+    
+    Args:
+        ticker: Stock ticker symbol (e.g., 'AAPL', 'MSFT')
+        
+    Returns:
+        Dictionary with comprehensive news coverage or error message
+    """
     try:
         if not ticker.strip():
             return {"status": "error", "message": "Ticker symbol is required"}
 
-        # Get company name for better search results
+        # Initialize Finnhub client
+        api_key = os.getenv('FINNHUB_API_KEY')
+        if not api_key:
+            return {"status": "error", "message": "FINNHUB_API_KEY not found in environment variables"}
+        
+        finnhub_client = finnhub.Client(api_key=api_key)
+        ticker = ticker.upper().strip()
+
+        # Get company name for context
         try:
-            stock = yf.Ticker(ticker)
-            company_name = (
-                stock.info.get("shortName") or stock.info.get("longName") or ticker
-            )
+            profile = finnhub_client.company_profile2(symbol=ticker)
+            company_name = profile.get('name', ticker) if profile else ticker
         except Exception:
             company_name = ticker
 
@@ -73,31 +213,38 @@ def get_stock_news(ticker: str) -> Union[Dict, str]:
         all_news = []
         sources_tried = []
 
-        # 1. Try Yahoo Finance news API directly
-        sources_tried.append("Yahoo Finance API")
+        # 1. Try Finnhub company news API
+        sources_tried.append("Finnhub API")
         try:
-            stock = yf.Ticker(ticker)
-            news_data = stock.news
+            # Get news from past 7 days for recent coverage
+            from_date = (dt.datetime.now() - dt.timedelta(days=7)).strftime("%Y-%m-%d")
+            to_date = dt.datetime.now().strftime("%Y-%m-%d")
+            
+            news_data = finnhub_client.company_news(ticker, _from=from_date, to=to_date)
 
             if news_data and len(news_data) > 0:
-                for item in news_data[:5]:
+                for item in news_data[:10]:  # Get top 10 recent news items
+                    # Convert timestamp to readable date
+                    try:
+                        news_date = dt.datetime.fromtimestamp(item.get('datetime', 0)).strftime("%Y-%m-%d %H:%M")
+                    except:
+                        news_date = "Date unavailable"
+                    
                     news_item = {
-                        "title": item.get("title", ""),
-                        "summary": (
-                            item.get("summary", "")[:300] if item.get("summary") else ""
-                        ),
-                        "url": item.get("link", ""),
-                        "source": item.get("publisher", "Yahoo Finance"),
-                        "date": dt.datetime.fromtimestamp(
-                            item.get("providerPublishTime", 0)
-                        ).strftime("%Y-%m-%d"),
+                        "title": item.get("headline", "No title available"),
+                        "summary": item.get("summary", "")[:300] if item.get("summary") else "No summary available",
+                        "url": item.get("url", ""),
+                        "source": item.get("source", "Finnhub"),
+                        "date": news_date,
+                        "category": item.get("category", "General"),
+                        "sentiment": "neutral"  # Finnhub doesn't provide sentiment directly
                     }
                     if news_item["title"] and news_item["url"]:
                         all_news.append(news_item)
 
-                print(f"Found {len(all_news)} news items from Yahoo Finance API")
+                print(f"Found {len(all_news)} news items from Finnhub API")
         except Exception as e:
-            print(f"Error with Yahoo Finance API: {str(e)}")
+            print(f"Error with Finnhub API: {str(e)}")
 
         # 2. Try MarketWatch
         if len(all_news) < 5:
@@ -383,13 +530,13 @@ def create_initial_messages():
     return [
         {
             "role": "user",
-            "content": [{"text": "Hello, I need help analyzing a company."}],
+            "content": [{"text": "Hello, I need help analyzing a company using comprehensive financial data."}],
         },
         {
             "role": "assistant",
             "content": [
                 {
-                    "text": "I'm ready to help you analyze a company. Please provide a ticker symbol."
+                    "text": "I'm ready to help you analyze companies using Finnhub API and comprehensive research tools. Please provide a ticker symbol for detailed analysis."
                 }
             ],
         },
@@ -397,69 +544,108 @@ def create_initial_messages():
 
 
 def create_company_analysis_agent():
-    """Create and configure the company analysis agent."""
+    """Create and configure the company analysis agent with Finnhub integration."""
     return Agent(
-        system_prompt="""You are a comprehensive company analysis specialist. Follow these steps:
+        system_prompt="""You are a comprehensive company analysis specialist using Finnhub API for institutional-grade data. Follow these steps:
 
 <input>
 When user provides a company ticker:
-1. Use get_company_info to fetch company overview
-3. Use get_stock_news to assess market conditions
-4. Provide detailed analysis in the format below
+1. Use get_company_info to fetch comprehensive company profile from Finnhub API
+2. Use get_stock_news to gather recent news and market sentiment
+3. Analyze all available data sources including web scraping when available
+4. Provide detailed, investment-grade analysis in the format below
 </input>
 
 <output_format>
 1. Company Overview:
-   - Company Name and Industry
-   - Business Description
-   - Market Position
-   - Key Facts
+   - Company Name, Industry, and Exchange Information
+   - Business Description and Core Operations
+   - Geographic Presence and Market Position
+   - Key Company Facts (IPO date, employees, headquarters)
 
-2. Financial Analysis:
-   - Key Financial Metrics
-   - Important Ratios
-   - Cash Flow Assessment
-   - Profitability Analysis
+2. Corporate Information:
+   - Market Capitalization and Share Structure
+   - Exchange Listing and Currency
+   - Company Contact Information and Website
+   - Recent Corporate Developments
 
-3. Market Analysis:
-   - Technical Indicators
-   - Recent News Impact
-   - Market Position
-   - Risk Assessment (Beta)
+3. Market Intelligence:
+   - Recent News Analysis and Market Sentiment
+   - Key Headlines and Industry Developments
+   - Media Coverage Assessment
+   - Market Perception and Investor Interest
 
-4. Summary and Recommendations:
-   - Key Strengths
-   - Potential Risks
-   - Overall Assessment
-</output_format>""",
+4. Data Quality and Sources:
+   - Finnhub API Data Coverage
+   - Web Scraping Results (if available)
+   - News Sources Analyzed
+   - Data Freshness and Reliability
+
+5. Investment Research Summary:
+   - Company Strengths and Competitive Advantages
+   - Key Risk Factors and Challenges
+   - Recent Developments Impact Assessment
+   - Overall Investment Research Profile
+
+6. Additional Intelligence:
+   - Website Analysis Results (if available)
+   - Multi-source News Validation
+   - Information Quality Assessment
+   - Recommended Follow-up Research Areas
+</output_format>
+
+<analysis_guidelines>
+- Leverage Finnhub's institutional-grade financial data
+- Cross-reference multiple news sources for accuracy
+- Provide context for any data limitations or gaps
+- Focus on actionable investment research insights
+- Highlight unique company characteristics and differentiators
+- Note data recency and reliability for all sources
+- Provide professional-grade analysis suitable for investment decisions
+</analysis_guidelines>""",
         model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region="us-east-1"),
         tools=[get_company_info, get_stock_news, http_request, think],
     )
 
 
 def main():
-    """Main function to run the company analysis tool."""
+    """Main function to run the company analysis tool with Finnhub integration."""
+    # Check for API key before starting
+    if not os.getenv('FINNHUB_API_KEY'):
+        print("❌ Error: FINNHUB_API_KEY not found in environment variables")
+        print("Please add your Finnhub API key to a .env file:")
+        print("FINNHUB_API_KEY=your_api_key_here")
+        return
+
     # Create and initialize the agent
     company_analysis_agent = create_company_analysis_agent()
     company_analysis_agent.messages = create_initial_messages()
 
-    print("\n🏢 Company Analysis Tool 🔍\n")
+    print("\n🏢 Company Analysis Tool (Finnhub API + Multi-Source Intelligence) 🔍")
+    print("=" * 75)
+    print("Enter stock ticker symbols for comprehensive company research and analysis")
+    print("Type 'exit' to quit\n")
 
     while True:
-        query = input("\nEnter ticker symbol> ").strip()
+        query = input("Company Ticker> ").strip()
 
-        if query.lower() == "exit":
-            print("\nGoodbye! 👋")
+        if query.lower() in ['exit', 'quit', 'q']:
+            print("\n👋 Goodbye! Happy researching!")
             break
 
-        print("\nAnalyzing...\n")
+        if not query.strip():
+            print("Please enter a company ticker symbol.")
+            continue
+
+        print(f"\n🔍 Conducting comprehensive analysis for {query.upper()}...")
+        print("-" * 50)
 
         try:
             # Create the user message with proper Nova format
             user_message = {
                 "role": "user",
                 "content": [
-                    {"text": f"Please provide a comprehensive analysis for: {query}"}
+                    {"text": f"Please provide comprehensive company analysis including market intelligence for: {query}"}
                 ],
             }
 
@@ -468,10 +654,15 @@ def main():
 
             # Get response
             response = company_analysis_agent(user_message["content"][0]["text"])
-            print(f"Analysis Results:\n{response}\n")
+            print(f"{response}\n")
 
         except Exception as e:
-            print(f"Error: {str(e)}\n")
+            print(f"❌ Error analyzing {query}: {str(e)}\n")
+            
+            # Check if it's an API key issue
+            if "FINNHUB_API_KEY" in str(e):
+                print("💡 Tip: Make sure your .env file contains a valid Finnhub API key")
+                break
         finally:
             # Reset conversation after each query
             company_analysis_agent.messages = create_initial_messages()

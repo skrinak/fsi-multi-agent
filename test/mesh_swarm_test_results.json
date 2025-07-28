@@ -1,0 +1,94 @@
+{
+  "start_time": 1753745845.9042208,
+  "tests_completed": 7,
+  "tests_passed": 4,
+  "tests_failed": 3,
+  "results": {
+    "document_processing": {
+      "documents_processed": 2,
+      "successful_extractions": 2,
+      "failed_extractions": 0,
+      "document_details": {
+        "amazon_10k": {
+          "pages": 39,
+          "chars": 108824,
+          "document_type": "10k_report",
+          "complexity": "high",
+          "contains_financial_metrics": true,
+          "contains_risk_factors": true
+        },
+        "legal_correspondence": {
+          "pages": 14,
+          "chars": 18674,
+          "document_type": "unknown",
+          "complexity": "low",
+          "contains_financial_metrics": true,
+          "contains_risk_factors": false
+        }
+      },
+      "total_pages": 53,
+      "total_characters": 127498
+    },
+    "agent_creation": {
+      "creation_successful": true,
+      "agent_tests": {
+        "analyzer_created": true,
+        "agents_available": true,
+        "swarm_agent_available": true,
+        "research_agent": true,
+        "investment_agent": true,
+        "risk_agent": true,
+        "summarizer_agent": true
+      },
+      "demo_mode": false
+    },
+    "shared_memory": {
+      "system_functional": true,
+      "insights_stored": 4,
+      "categories_used": 5,
+      "memory_summary": {
+        "total_insights": 4,
+        "categories": {
+          "financial_insights": 1,
+          "investment_analyses": 1,
+          "risk_assessments": 1,
+          "market_context": 1,
+          "historical_decisions": 0
+        },
+        "last_updated": "2025-07-28T16:37:29.717134"
+      },
+      "retrieval_tests": {
+        "all_insights": true,
+        "agent_filter": true,
+        "category_filter": true
+      }
+    },
+    "concepts": {
+      "concepts_functional": true,
+      "core_concepts_count": 3,
+      "financial_applications_count": 6,
+      "agent_specializations_count": 4,
+      "best_practices_count": 6,
+      "validation_results": {
+        "concepts_valid": true,
+        "apps_valid": true,
+        "guidance_valid": true
+      }
+    },
+    "mesh_communication": {
+      "communication_successful": false,
+      "error": "An error occurred (AccessDeniedException) when calling the ConverseStream operation: You don't have access to the model with the specified model ID."
+    },
+    "pattern_comparison": {
+      "comparison_successful": false,
+      "error": "An error occurred (AccessDeniedException) when calling the ConverseStream operation: You don't have access to the model with the specified model ID."
+    },
+    "end_to_end": {
+      "analysis_successful": false,
+      "error": "An error occurred (AccessDeniedException) when calling the ConverseStream operation: You don't have access to the model with the specified model ID."
+    }
+  },
+  "end_time": 1753745855.3564448,
+  "total_duration": 9.452224016189575,
+  "success_rate": 0.5714285714285714
+}

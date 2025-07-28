@@ -55,22 +55,36 @@ The project uses different dependency management approaches:
 1. **Finance-assistant-swarm-agent**: Uses `pyproject.toml` with uv package manager
 2. **Other modules**: Use `requirements.txt` files
 
-### Core Dependencies
+### Core Dependencies (Updated 2025-07-28)
 
-All modules depend on:
-- `strands`: Core agent framework (Strands Agents SDK)
-- `strands-agents-tools`: Agent tooling and utilities
+**All modules now have comprehensive requirements files with proper version specifications:**
 
-Finance agent additionally uses:
+#### Core Framework Dependencies:
+- `strands-agents>=0.1.7`: Core agent framework (Strands Agents SDK)
+- `strands-agents-tools>=0.1.5`: Agent tooling and utilities
+
+#### Financial Data & Web Intelligence:
 - `finnhub-python>=2.4.18`: Stock market and financial data via Finnhub API (**replaces yfinance**)
-- `python-dotenv>=1.0.0`: Environment variable management
-- `pandas`: Data manipulation and analysis
-- `boto3`: AWS Bedrock integration for LLM models
-- `requests`: HTTP requests for web scraping
-- `beautifulsoup4`: HTML parsing for web intelligence
+- `requests>=2.32.4`: HTTP requests for web scraping
+- `beautifulsoup4>=4.12.0`: HTML parsing for web intelligence (**ADDED**)
 
-Document processing modules use:
-- `PyPDF2`: PDF document extraction for loan applications and legal documents
+#### AWS Integration:
+- `boto3>=1.38.36`: AWS Bedrock integration for LLM models
+- `botocore>=1.31.0`: AWS core library with Config support (**ADDED**)
+
+#### Document Processing:
+- `PyPDF2>=3.0.0`: PDF document extraction for loan applications and legal documents (**ADDED with version**)
+
+#### Data Processing & Configuration:
+- `pandas>=2.3.0`: Data manipulation and analysis
+- `PyYAML>=6.0.0`: YAML configuration file processing (**ADDED**)
+- `python-dotenv>=1.0.0`: Environment variable management
+
+#### Development & Logging:
+- `python-dateutil>=2.8.0`: Enhanced date/time processing (**ADDED**)
+- `coloredlogs>=15.0.0`: Enhanced logging output (**ADDED**)
+
+**Requirements Analysis Status**: ✅ **COMPLETE** - All Python files and Jupyter notebooks analyzed, all missing dependencies identified and added to requirements files.
 
 ### Installation Commands
 

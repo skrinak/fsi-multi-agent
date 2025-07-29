@@ -200,20 +200,66 @@ All agents follow the updated pattern:
 
 ## Testing and Development
 
-### No Automated Testing
-The repository does not contain automated test suites. Testing is done through Python module execution and manual verification.
+### Multi-Agent System Testing Framework
+The repository contains comprehensive testing frameworks for **all five multi-agent architectural patterns**:
+
+#### Testing Status
+- **Hierarchical Agents** (Loan Underwriting) - ⚠️ Infrastructure Complete, AWS Integration PENDING
+- **Mesh Swarm Agents** (Financial Research) - ⚠️ Infrastructure Complete, AWS Integration PENDING
+- **Parallel Workflow Agents** (Claims Adjudication) - ⚠️ Infrastructure Complete, AWS Integration PENDING
+- **Loop Pattern Agents** (Iterative Refinement) - ⚠️ Infrastructure Complete, AWS Integration PENDING
+- **Composite Pattern Agents** (Modular Composition) - ⚠️ Infrastructure Complete, AWS Integration PENDING
+
+**ISSUE**: All testing frameworks are built and functional, but AWS Bedrock model access configuration needs to be resolved for complete end-to-end validation. Current tests pass infrastructure validation but fail on AWS model access due to `AccessDeniedException` errors.
+
+#### Test Files
+- `test/test_hierarchical_agents.py` - Comprehensive hierarchical agent testing
+- `test/test_mesh_swarm_agents.py` - Complete mesh swarm communication testing
+- `test/test_parallel_workflow_agents.py` - Parallel workflow and dependency testing
+- `test/test_loop_pattern_agents.py` - Iterative refinement and convergence testing
+- `test/test_composite_pattern_agents.py` - Modular composition and integration testing
+
+#### Test Documentation
+- `test/HIERARCHICAL_TESTING_GUIDE.md` - Complete hierarchical testing procedures
+- `test/MESH_SWARM_TESTING_GUIDE.md` - Mesh swarm testing and analysis guide
+- `test/PARALLEL_WORKFLOW_TESTING_GUIDE.md` - Parallel workflow testing documentation
+- `test/LOOP_PATTERN_TESTING_GUIDE.md` - Loop pattern and iterative refinement guide
+- `test/COMPOSITE_PATTERN_TESTING_GUIDE.md` - Composite pattern and modular composition guide
+
+### **CRITICAL TESTING REQUIREMENT**
+⚠️ **IMPORTANT**: Multi-agent system tests should NEVER be marked as complete without successful end-to-end AWS Bedrock integration. Tests must demonstrate:
+1. Successful AWS Bedrock model access (not just graceful fallback)
+2. Complete agent-to-agent communication via AWS models
+3. End-to-end workflow execution with real AI model responses
+4. Full validation of all system components under production conditions
+
+**Partial Success is Not Completion**: Tests that only pass infrastructure validation while failing on AWS integration should be considered incomplete and require proper AWS configuration before marking as complete.
 
 ### Development Workflow
 1. Modify agent implementations in `.py` files
 2. Test changes by running Python modules directly
 3. Verify multi-agent coordination through swarm execution
-4. Check integration with external APIs (Finnhub, web scraping)
+4. **REQUIRED**: Validate full AWS Bedrock integration for production readiness
+5. Check integration with external APIs (Finnhub, web scraping)
 
 ### Environment Setup (Updated Post-Migration)
 1. **REQUIRED**: Create `.env` file with `FINNHUB_API_KEY=your_api_key`
-2. Install dependencies with `uv sync` (finance agents) or `pip install -r requirements.txt`
-3. Test Finnhub connectivity: `python -c "from stock_price_agent import get_stock_prices; print(get_stock_prices('AAPL'))"`
-4. Verify all Python modules execute without errors
+2. **REQUIRED for Multi-Agent Testing**: Configure AWS Bedrock access
+   ```bash
+   # AWS credentials for Bedrock (required for full testing)
+   aws configure  # OR set environment variables:
+   # AWS_ACCESS_KEY_ID=your_key
+   # AWS_SECRET_ACCESS_KEY=your_secret
+   # AWS_DEFAULT_REGION=us-east-1  # or your preferred region
+   ```
+3. **REQUIRED**: Request AWS Bedrock model access in AWS Console
+   - Navigate to: AWS Console → Bedrock → Model Access
+   - Request access to required models (Claude, etc.)
+   - Wait for approval before running end-to-end tests
+4. Install dependencies with `uv sync` (finance agents) or `pip install -r requirements.txt`
+5. Test Finnhub connectivity: `python -c "from stock_price_agent import get_stock_prices; print(get_stock_prices('AAPL'))"`
+6. **Test AWS Bedrock connectivity**: `python -c "import boto3; print(boto3.client('bedrock-runtime', region_name='us-east-1').list_foundation_models())"`
+7. Verify all Python modules execute without errors
 
 ## External Integrations
 

@@ -403,7 +403,7 @@ Create a `.env` file in the project root with the following **essential variable
 # AWS Configuration (REQUIRED)
 AWS_ACCESS_KEY_ID=your_aws_access_key_here
 AWS_SECRET_ACCESS_KEY=your_aws_secret_key_here
-AWS_DEFAULT_REGION=us-west-2
+AWS_DEFAULT_REGION=your_preferred_aws_region  # e.g., us-west-2, us-east-1, eu-west-1
 
 # Financial Data API (REQUIRED)
 FINNHUB_API_KEY=your_finnhub_api_key_here
@@ -428,7 +428,7 @@ NEWS_API_KEY=your_news_api_key_here
 
 ### AWS Bedrock Model Access (CRITICAL)
 
-The system requires access to **exactly 3 foundation models** in the **us-west-2** region:
+The system requires access to **exactly 3 foundation models** in your configured AWS region. **Global Flexibility**: This system works in any AWS region where these Bedrock models are available - simply set your preferred region in `AWS_DEFAULT_REGION`.
 
 | Model Name | Model ID | Usage | Required For |
 |------------|----------|-------|---------------|
@@ -439,10 +439,10 @@ The system requires access to **exactly 3 foundation models** in the **us-west-2
 **To request model access:**
 
 1. Navigate to [AWS Console → Bedrock → Model Access](https://console.aws.amazon.com/bedrock/home#/modelaccess)
-2. Select **us-west-2** region (critical!)
+2. **Select your preferred AWS region** where Bedrock is available (the system will use your `AWS_DEFAULT_REGION` setting)
 3. Request access to the 3 models listed above
 4. Wait for approval (typically 2-24 hours)
-5. Verify access: `python -c "import boto3; print(len(boto3.client('bedrock', region_name='us-west-2').list_foundation_models()['modelSummaries']))"`
+5. Verify access: `python -c "import boto3, os; from dotenv import load_dotenv; load_dotenv(); region=os.getenv('AWS_DEFAULT_REGION', 'us-west-2'); print(f'Models available in {region}: {len(boto3.client(\"bedrock\", region_name=region).list_foundation_models()[\"modelSummaries\"])}')"`
 
 ### Installation Steps
 

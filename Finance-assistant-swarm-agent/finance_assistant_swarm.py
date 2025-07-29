@@ -204,32 +204,24 @@ class StockAnalysisSwarm:
 
     def analyze_company(self, query: str) -> Dict[str, Any]:
         """Run the swarm analysis for a company using Finnhub-powered agents."""
-        print(f"🔧 DEBUG: StockAnalysisSwarm.analyze_company called with query='{query}'")
-        print(f"🔧 DEBUG: SWARM_AVAILABLE={SWARM_AVAILABLE}")
         try:
             if not SWARM_AVAILABLE:
-                print("🔧 DEBUG: Using _simple_analyze_company (swarm not available)")
                 return self._simple_analyze_company(query)
             
             # Use the actual Swarm API with process_phase (UV environment version)
             print("\n🔍 Phase 1: Gathering company information...")
-            print(f"🔧 DEBUG: Setting up swarm analysis for query: '{query}'")
             
             # Set the company query in shared memory if available
             if hasattr(self.swarm, 'shared_memory'):
                 self.swarm.shared_memory.store("query", query)
-                print(f"🔧 DEBUG: Stored query in shared memory")
             
             # Process Phase 1: Company information gathering
             tool_context = {"query": query, "task": "company_info_gathering"}
-            print(f"🔧 DEBUG: Calling swarm.process_phase() for phase 1 with context: {tool_context}")
             phase1_result = self.swarm.process_phase(tool_context)
-            print(f"🔧 DEBUG: Phase 1 result: {type(phase1_result)}")
             
             if phase1_result:
                 # Extract ticker from the first result
                 ticker = self._extract_ticker_from_info(str(phase1_result), query)
-                print(f"🔧 DEBUG: Extracted ticker: '{ticker}'")
                 
                 # Store ticker for phase 2
                 if hasattr(self.swarm, 'shared_memory'):
@@ -238,9 +230,7 @@ class StockAnalysisSwarm:
                 # Process Phase 2: Comprehensive analysis
                 print("\n📊 Phase 2: Conducting comprehensive financial analysis...")
                 tool_context_phase2 = {"query": query, "ticker": ticker, "task": "comprehensive_analysis"}
-                print(f"🔧 DEBUG: Calling swarm.process_phase() for phase 2 with context: {tool_context_phase2}")
                 phase2_result = self.swarm.process_phase(tool_context_phase2)
-                print(f"🔧 DEBUG: Phase 2 result: {type(phase2_result)}")
                 
                 return {
                     "status": "success",
@@ -250,7 +240,6 @@ class StockAnalysisSwarm:
                     "coordination_method": "swarm_process_phase"
                 }
             else:
-                print(f"🔧 DEBUG: Phase 1 returned no results")
                 return {"status": "error", "message": "Swarm phase 1 analysis returned no response"}
 
         except Exception as e:
@@ -258,32 +247,21 @@ class StockAnalysisSwarm:
     
     def _simple_analyze_company(self, query: str) -> Dict[str, Any]:
         """Simple company analysis when swarm tools are not available."""
-        print(f"🔧 DEBUG: _simple_analyze_company called with query='{query}'")
         try:
             print("\n🔍 Gathering company information...")
-            print(f"🔧 DEBUG: Calling search_agent with query: 'Please find company information for: {query}'")
             company_info = str(self.search_agent(f"Please find company information for: {query}"))
-            print(f"🔧 DEBUG: search_agent returned {len(company_info)} chars")
             
             # Extract ticker
-            print(f"🔧 DEBUG: Extracting ticker from company_info and query '{query}'")
             ticker = self._extract_ticker_from_info(company_info, query)
-            print(f"🔧 DEBUG: Extracted ticker: '{ticker}'")
             
             print(f"\n📊 Analyzing {ticker} with individual agents...")
             
             # Get analysis from each agent
-            print(f"🔧 DEBUG: Calling price_agent for ticker '{ticker}'")
             price_analysis = str(self.price_agent(f"Analyze stock prices for {ticker}"))
-            print(f"🔧 DEBUG: price_agent returned {len(price_analysis)} chars")
             
-            print(f"🔧 DEBUG: Calling metrics_agent for ticker '{ticker}'")
             metrics_analysis = str(self.metrics_agent(f"Analyze financial metrics for {ticker}"))
-            print(f"🔧 DEBUG: metrics_agent returned {len(metrics_analysis)} chars")
             
-            print(f"🔧 DEBUG: Calling news_agent for ticker '{ticker}'")
             news_analysis = str(self.news_agent(f"Analyze recent news and sentiment for {ticker}"))
-            print(f"🔧 DEBUG: news_agent returned {len(news_analysis)} chars")
             
             result = {
                 "status": "success",
@@ -294,13 +272,9 @@ class StockAnalysisSwarm:
                 "news_analysis": news_analysis,
                 "coordination_method": "individual_agents"
             }
-            print(f"🔧 DEBUG: _simple_analyze_company returning success result")
             return result
             
         except Exception as e:
-            print(f"🔧 DEBUG: Exception in _simple_analyze_company: {type(e).__name__}: {str(e)}")
-            import traceback
-            traceback.print_exc()
             return {"status": "error", "message": f"Individual agent analysis error: {str(e)}"}
     
     def _extract_ticker_from_info(self, company_info: str, query: str) -> str:
@@ -365,17 +339,10 @@ def create_orchestration_agent() -> Agent:
     @tool
     def analyze_company_tool(query: str) -> str:
         """Analyze a company using the Finnhub-powered swarm of financial agents."""
-        print(f"🔧 DEBUG: analyze_company_tool called with query='{query}'")
         try:
             result = swarm_instance.analyze_company(query)
-            print(f"🔧 DEBUG: swarm_instance.analyze_company returned: {type(result)}")
-            if isinstance(result, dict) and result.get('status') == 'error':
-                print(f"🔧 DEBUG: Error in swarm analysis: {result.get('message')}")
             return str(result)
         except Exception as e:
-            print(f"🔧 DEBUG: Exception in analyze_company_tool: {type(e).__name__}: {str(e)}")
-            import traceback
-            traceback.print_exc()
             raise
     
     return Agent(

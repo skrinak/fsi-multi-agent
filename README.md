@@ -483,8 +483,13 @@ The system requires access to **exactly 3 foundation models** in your configured
 5. **Verify Installation**
    ```bash
    python test/test_aws_region.py
-   python test/test_quick_validation.py
+   python test/test_quick_validation.py  # Should show 3/3 tests passing
    ```
+
+   **Expected Output**: All validation tests should pass (3/3) confirming:
+   - ✅ Finance Agent Creation
+   - ✅ Hierarchical System 
+   - ✅ API Functions (Finnhub integration)
 
 ### Running the 5 Multi-Agent Demos
 

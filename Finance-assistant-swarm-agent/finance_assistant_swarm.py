@@ -21,6 +21,9 @@ from strands_tools import think, http_request
 load_dotenv()  # Current directory
 load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))  # Parent directory
 
+# Third-party imports for ticker validation
+import finnhub
+
 # Try to import swarm tools - graceful fallback if not available
 try:
     from strands_tools.swarm import Swarm, SwarmAgent
@@ -39,6 +42,59 @@ from company_analysis_agent import (
     get_stock_news,
     create_company_analysis_agent,
 )
+
+
+def validate_ticker(ticker: str) -> Dict[str, Any]:
+    """
+    Validate ticker symbol using Finnhub API.
+    
+    Args:
+        ticker: Stock ticker symbol to validate
+        
+    Returns:
+        Dict with validation status and ticker info
+    """
+    try:
+        # Clean and format ticker
+        ticker = ticker.strip().upper()
+        
+        if not ticker:
+            return {"valid": False, "error": "Empty ticker symbol"}
+        
+        # Check basic format (1-5 letters)
+        import re
+        if not re.match(r'^[A-Z]{1,5}$', ticker):
+            return {"valid": False, "error": f"Invalid ticker format: {ticker}"}
+        
+        # Get API key
+        api_key = os.getenv('FINNHUB_API_KEY')
+        if not api_key:
+            return {"valid": False, "error": "FINNHUB_API_KEY not found in environment"}
+        
+        # Initialize Finnhub client
+        finnhub_client = finnhub.Client(api_key=api_key)
+        
+        # Test ticker with quote endpoint
+        quote = finnhub_client.quote(ticker)
+        
+        # Check if quote contains valid data
+        if not quote or 'c' not in quote:
+            return {"valid": False, "error": f"No data found for ticker: {ticker}"}
+        
+        # Finnhub returns 0 for invalid tickers
+        current_price = quote.get('c', 0)
+        if current_price == 0:
+            return {"valid": False, "error": f"Invalid or delisted ticker: {ticker}"}
+        
+        return {
+            "valid": True, 
+            "ticker": ticker,
+            "current_price": current_price,
+            "message": f"Valid ticker: {ticker} (${current_price:.2f})"
+        }
+        
+    except Exception as e:
+        return {"valid": False, "error": f"Ticker validation failed: {str(e)}"}
 
 
 class StockAnalysisSwarm:
@@ -261,6 +317,15 @@ def create_orchestration_agent() -> Agent:
     
     swarm_instance = StockAnalysisSwarm()
     
+    # Create a proper tool wrapper for the analyze_company method
+    from strands import tool
+    
+    @tool
+    def analyze_company_tool(query: str) -> str:
+        """Analyze a company using the Finnhub-powered swarm of financial agents."""
+        result = swarm_instance.analyze_company(query)
+        return str(result)
+    
     return Agent(
         system_prompt="""You are a comprehensive stock analysis orchestrator using Finnhub API-powered agents. Your role is to:
         1. Coordinate a swarm of specialized financial analysis agents
@@ -313,7 +378,7 @@ def create_orchestration_agent() -> Agent:
         
         Focus on providing actionable, professional-grade investment analysis suitable for informed decision-making.""",
         model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region=os.getenv("AWS_DEFAULT_REGION", "us-west-2")),
-        tools=[swarm_instance.analyze_company, think, http_request],
+        tools=[analyze_company_tool],
     )
 
 
@@ -365,6 +430,19 @@ def main():
         if not query.strip():
             print("Please enter a company name or ticker symbol.")
             continue
+
+        # Validate ticker if it looks like one (1-5 uppercase letters)
+        import re
+        if re.match(r'^[A-Z]{1,5}$', query.upper()):
+            print(f"\n🔍 Validating ticker symbol {query.upper()}...")
+            validation = validate_ticker(query)
+            
+            if not validation["valid"]:
+                print(f"❌ {validation['error']}")
+                print("Please enter a valid ticker symbol or company name.")
+                continue
+            else:
+                print(f"✅ {validation['message']}")
 
         print(f"\n🔍 Initiating comprehensive analysis for {query.upper()}...")
         print("-" * 50)

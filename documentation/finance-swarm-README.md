@@ -46,7 +46,7 @@ The orchestrator outputs five ordered sections:
 
 - Python 3.10+
 - AWS CLI v2 configured
-- [Access](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access-modify.html) to Amazon Bedrock (Nova in us-east-1 region)
+- [Access](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access-modify.html) to Amazon Bedrock (Nova model access in your configured AWS region from .env)
 
 ### Running the Application
 

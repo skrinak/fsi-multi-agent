@@ -3,6 +3,12 @@
 Test multiple stocks to ensure the FMP integration is robust.
 """
 
+import sys
+import os
+
+# Add the Finance-assistant-swarm-agent directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'Finance-assistant-swarm-agent'))
+
 from stock_price_agent import get_stock_prices
 
 def test_multiple_stocks():

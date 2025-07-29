@@ -1,5 +1,5 @@
 {
-  "start_time": 1753745283.564427,
+  "start_time": 1753799620.808718,
   "tests_completed": 5,
   "tests_passed": 5,
   "tests_failed": 0,
@@ -69,12 +69,12 @@
         "Consider manual underwriting with fraud specialist review",
         "Verify SSN through Social Security Administration"
       ],
-      "analysis_timestamp": "2025-07-28T16:28:03.688681"
+      "analysis_timestamp": "2025-07-29T07:33:40.922445"
     },
     "system_creation": {
       "creation_successful": true,
       "system_status": {
-        "toolUseId": "tooluse_agent_graph_124752438",
+        "toolUseId": "tooluse_agent_graph_435401807",
         "status": "success",
         "content": [
           {
@@ -100,10 +100,10 @@
       "confidence_score": 0.5,
       "fraud_indicators_count": 0,
       "recommendations_count": 0,
-      "processing_timestamp": "2025-07-28T16:28:03.890347"
+      "processing_timestamp": "2025-07-29T07:33:41.117832"
     }
   },
-  "end_time": 1753745283.968524,
-  "total_duration": 0.4040970802307129,
+  "end_time": 1753799621.2144809,
+  "total_duration": 0.4057629108428955,
   "success_rate": 1.0
 }

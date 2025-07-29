@@ -230,7 +230,7 @@ When user provides a company ticker:
 - Note data limitations or market conditions affecting analysis
 - Provide context for metric interpretation
 </analysis_guidelines>""",
-        model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region="us-east-1"),
+        model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region=os.getenv("AWS_DEFAULT_REGION", "us-west-2")),
         tools=[get_financial_metrics, http_request, think],
     )
 

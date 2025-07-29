@@ -312,7 +312,7 @@ def create_orchestration_agent() -> Agent:
            - Portfolio allocation suggestions
         
         Focus on providing actionable, professional-grade investment analysis suitable for informed decision-making.""",
-        model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region="us-east-1"),
+        model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region=os.getenv("AWS_DEFAULT_REGION", "us-west-2")),
         tools=[swarm_instance.analyze_company, think, http_request],
     )
 

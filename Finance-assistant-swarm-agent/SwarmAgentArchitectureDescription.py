@@ -421,7 +421,7 @@ class DeploymentGuide:
                 "aws_bedrock": {
                     "service": "Amazon Bedrock",
                     "requirement": "AWS account with Bedrock access",
-                    "models": "Amazon Nova Pro (us-east-1 region)",
+                    "models": "Amazon Nova Pro (region configured in .env AWS_DEFAULT_REGION)",
                     "authentication": "AWS CLI v2 configured or IAM role"
                 }
             },

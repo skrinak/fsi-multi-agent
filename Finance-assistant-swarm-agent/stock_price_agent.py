@@ -196,7 +196,7 @@ When user provides a company name or ticker:
 - Note any data limitations or market closure impacts
 - Use clear, professional financial terminology
 </analysis_guidelines>""",
-        model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region="us-west-2"),
+        model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region=os.getenv("AWS_DEFAULT_REGION", "us-west-2")),
         tools=[get_stock_prices, http_request, think],
     )
 

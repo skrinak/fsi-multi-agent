@@ -604,7 +604,7 @@ When user provides a company ticker:
 - Note data recency and reliability for all sources
 - Provide professional-grade analysis suitable for investment decisions
 </analysis_guidelines>""",
-        model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region="us-east-1"),
+        model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region=os.getenv("AWS_DEFAULT_REGION", "us-west-2")),
         tools=[get_company_info, get_stock_news, http_request, think],
     )
 

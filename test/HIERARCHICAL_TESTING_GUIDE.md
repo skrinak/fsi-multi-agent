@@ -187,7 +187,7 @@ aws configure
 # OR set environment variables
 export AWS_ACCESS_KEY_ID=your_key
 export AWS_SECRET_ACCESS_KEY=your_secret
-export AWS_DEFAULT_REGION=us-east-1
+export AWS_DEFAULT_REGION=us-west-2  # Use region from .env file
 ```
 
 #### 3. Document Processing Failures  

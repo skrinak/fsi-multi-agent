@@ -26,7 +26,7 @@ import finnhub
 
 # Try to import swarm tools - graceful fallback if not available
 try:
-    from strands_tools.swarm import Swarm, SwarmAgent
+    from strands_tools.swarm import Swarm
     SWARM_AVAILABLE = True
 except ImportError:
     print("Warning: Swarm tools not available. Using simplified agent coordination.")
@@ -110,100 +110,87 @@ class StockAnalysisSwarm:
         if not SWARM_AVAILABLE:
             self._init_simple_agents()
             return
-        # Initialize Swarm with Nova Pro model
+        # Create individual agents for the swarm  
+        from strands import Agent
+        from strands.models.bedrock import BedrockModel
+
+        # Create specialized agents as regular Agent instances with unique names
+        self.search_agent = Agent(
+            model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region=os.getenv("AWS_DEFAULT_REGION", "us-west-2")),
+            system_prompt="""You are a company information specialist using Finnhub API.
+            Use get_company_info to find comprehensive company details from Finnhub.
+            Provide accurate company information including ticker, market cap, and business description.""",
+            tools=[get_company_info]
+        )
+        self.search_agent.name = "company_info_specialist"
+
+        self.price_agent = Agent(
+            model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region=os.getenv("AWS_DEFAULT_REGION", "us-west-2")),
+            system_prompt="""You are a stock price analysis specialist using Finnhub API.
+            Use get_stock_prices to analyze current prices, historical trends, and trading patterns.
+            Focus on price movements, volatility, and technical analysis.""",
+            tools=[get_stock_prices]
+        )
+        self.price_agent.name = "stock_price_analyst"
+
+        self.metrics_agent = Agent(
+            model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region=os.getenv("AWS_DEFAULT_REGION", "us-west-2")),
+            system_prompt="""You are a financial metrics specialist using Finnhub API.
+            Use get_financial_metrics to analyze financial ratios, profitability, and growth indicators.
+            Focus on valuation, financial health, and investment quality analysis.""",
+            tools=[get_financial_metrics]
+        )
+        self.metrics_agent.name = "financial_metrics_expert"
+
+        self.news_agent = Agent(
+            model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region=os.getenv("AWS_DEFAULT_REGION", "us-west-2")),
+            system_prompt="""You are a news and sentiment specialist using Finnhub API.
+            Use get_stock_news to analyze recent company news and market sentiment.
+            Focus on recent developments and their impact on investment outlook.""",
+            tools=[get_stock_news]
+        )
+        self.news_agent.name = "news_sentiment_analyst"
+
+        # Initialize Swarm with the correct API for the UV environment version
         self.swarm = Swarm(
             task="Analyze company stock with multiple specialized Finnhub-powered agents",
-            coordination_pattern="collaborative",
+            coordination_pattern="collaborative"
         )
-
-        # Create SwarmAgent instances with Finnhub integration
-        self.search_agent = SwarmAgent(
-            agent_id="search_agent",
+        
+        # Add agents to swarm by creating SwarmAgent instances (UV environment API)
+        self.search_swarm_agent = self.swarm.add_agent(
+            agent_id="company_info_specialist",
             system_prompt="""You are a company information specialist using Finnhub API.
-            Your role is to:
-            1. Use get_company_info to find comprehensive company details from Finnhub
-            2. Verify company identity and ticker symbols
-            3. Share verified company information with other agents
-            4. Ensure accuracy and completeness of Finnhub data
-            5. Provide context about company industry, market cap, and basic profile""",
-            shared_memory=self.swarm.shared_memory,
+            Use get_company_info to find comprehensive company details from Finnhub.
+            Provide accurate company information including ticker, market cap, and business description."""
         )
-        self.search_agent.tools = [get_company_info, think]
-
-        self.price_agent = SwarmAgent(
-            agent_id="price_agent",
+        
+        self.price_swarm_agent = self.swarm.add_agent(
+            agent_id="stock_price_analyst", 
             system_prompt="""You are a stock price analysis specialist using Finnhub API.
-            Your role is to:
-            1. Analyze current stock prices and real-time quotes from Finnhub
-            2. Examine historical price trends and patterns
-            3. Assess trading volume and market activity
-            4. Share price analysis insights with other agents
-            5. Provide technical analysis and price movement context
-            Focus on recent price movements, volatility, and trading patterns.""",
-            shared_memory=self.swarm.shared_memory,
+            Use get_stock_prices to analyze current prices, historical trends, and trading patterns.
+            Focus on price movements, volatility, and technical analysis."""
         )
-        self.price_agent.tools = [get_stock_prices, http_request, think]
-
-        self.metrics_agent = SwarmAgent(
-            agent_id="metrics_agent",
+        
+        self.metrics_swarm_agent = self.swarm.add_agent(
+            agent_id="financial_metrics_expert",
             system_prompt="""You are a financial metrics specialist using Finnhub API.
-            Your role is to:
-            1. Analyze comprehensive financial metrics from Finnhub company fundamentals
-            2. Evaluate valuation ratios, profitability, and growth metrics
-            3. Assess financial health indicators and performance trends
-            4. Share financial insights and investment quality analysis with other agents
-            5. Provide context on financial strength and investment attractiveness
-            Focus on key performance indicators, ratios, and fundamental analysis.""",
-            shared_memory=self.swarm.shared_memory,
+            Use get_financial_metrics to analyze financial ratios, profitability, and growth indicators.
+            Focus on valuation, financial health, and investment quality analysis."""
         )
-        self.metrics_agent.tools = [get_financial_metrics, http_request, think]
-
-        self.news_agent = SwarmAgent(
-            agent_id="news_agent",
-            system_prompt="""You are a news and market sentiment specialist using Finnhub API and web intelligence.
-            Your role is to:
-            1. Gather recent company news from Finnhub API and multiple web sources
-            2. Analyze market sentiment and investor perception
-            3. Identify key developments affecting company outlook
-            4. Share news insights and sentiment analysis with other agents
-            5. Provide context on how news may impact investment decisions
-            Focus on recent developments, market sentiment, and news impact assessment.""",
-            shared_memory=self.swarm.shared_memory,
+        
+        self.news_swarm_agent = self.swarm.add_agent(
+            agent_id="news_sentiment_analyst",
+            system_prompt="""You are a news and sentiment specialist using Finnhub API.
+            Use get_stock_news to analyze recent company news and market sentiment.
+            Focus on recent developments and their impact on investment outlook."""
         )
-        self.news_agent.tools = [get_company_info, get_stock_news, http_request, think]
-
-        # Add agents to swarm with enhanced Finnhub-focused prompts
-        self.swarm.add_agent(
-            self.search_agent,
-            system_prompt="""You are the company information coordinator in the Finnhub-powered swarm.
-            Use get_company_info to find and verify comprehensive company information from Finnhub API.
-            Share verified company data including market cap, industry, and profile details with other agents.
-            Focus on accuracy and completeness of Finnhub institutional-grade data.""",
-        )
-
-        self.swarm.add_agent(
-            self.price_agent,
-            system_prompt="""You are a price analysis specialist in the Finnhub-powered swarm.
-            Analyze real-time stock prices, historical trends, and trading patterns using Finnhub data.
-            Share comprehensive price analysis including current quotes and technical insights with other agents.
-            Focus on recent price movements, volatility analysis, and market timing considerations.""",
-        )
-
-        self.swarm.add_agent(
-            self.metrics_agent,
-            system_prompt="""You are a financial metrics specialist in the Finnhub-powered swarm.
-            Analyze comprehensive financial metrics and company fundamentals using Finnhub API.
-            Share detailed financial health analysis including valuation, profitability, and growth metrics with other agents.
-            Focus on investment-grade fundamental analysis and financial performance indicators.""",
-        )
-
-        self.swarm.add_agent(
-            self.news_agent,
-            system_prompt="""You are a news analysis specialist in the Finnhub-powered swarm.
-            Analyze company news from Finnhub API and comprehensive web sources for market sentiment.
-            Share news insights, sentiment analysis, and market intelligence with other agents.
-            Focus on recent developments, investor sentiment, and news impact on investment outlook.""",
-        )
+        
+        # Assign tools to the SwarmAgent instances
+        self.search_swarm_agent.tools = [get_company_info]
+        self.price_swarm_agent.tools = [get_stock_prices]
+        self.metrics_swarm_agent.tools = [get_financial_metrics]
+        self.news_swarm_agent.tools = [get_stock_news]
     
     def _init_simple_agents(self):
         """Initialize simple agents when swarm tools are not available."""
@@ -217,62 +204,88 @@ class StockAnalysisSwarm:
 
     def analyze_company(self, query: str) -> Dict[str, Any]:
         """Run the swarm analysis for a company using Finnhub-powered agents."""
+        print(f"🔧 DEBUG: StockAnalysisSwarm.analyze_company called with query='{query}'")
+        print(f"🔧 DEBUG: SWARM_AVAILABLE={SWARM_AVAILABLE}")
         try:
             if not SWARM_AVAILABLE:
+                print("🔧 DEBUG: Using _simple_analyze_company (swarm not available)")
                 return self._simple_analyze_company(query)
             
-            # Initialize shared memory with query
-            self.swarm.shared_memory.store("query", query)
-
-            # Phase 1: Search for company information
+            # Use the actual Swarm API with process_phase (UV environment version)
             print("\n🔍 Phase 1: Gathering company information...")
-            search_result = self.swarm.process_phase()
-
-            if search_result:
-                # Extract ticker and company info
-                company_info = search_result[0].get("result", {}).get("content", [{}])[0].get("text", "")
+            print(f"🔧 DEBUG: Setting up swarm analysis for query: '{query}'")
+            
+            # Set the company query in shared memory if available
+            if hasattr(self.swarm, 'shared_memory'):
+                self.swarm.shared_memory.store("query", query)
+                print(f"🔧 DEBUG: Stored query in shared memory")
+            
+            # Process Phase 1: Company information gathering
+            tool_context = {"query": query, "task": "company_info_gathering"}
+            print(f"🔧 DEBUG: Calling swarm.process_phase() for phase 1 with context: {tool_context}")
+            phase1_result = self.swarm.process_phase(tool_context)
+            print(f"🔧 DEBUG: Phase 1 result: {type(phase1_result)}")
+            
+            if phase1_result:
+                # Extract ticker from the first result
+                ticker = self._extract_ticker_from_info(str(phase1_result), query)
+                print(f"🔧 DEBUG: Extracted ticker: '{ticker}'")
                 
-                # Try to extract ticker from company info
-                ticker = self._extract_ticker_from_info(company_info, query)
-                self.swarm.shared_memory.store("ticker", ticker)
-                self.swarm.shared_memory.store("company_info", company_info)
-                print(f"✅ Found company: {ticker}")
-
-                # Phase 2: Comprehensive Financial Analysis
+                # Store ticker for phase 2
+                if hasattr(self.swarm, 'shared_memory'):
+                    self.swarm.shared_memory.store("ticker", ticker)
+                
+                # Process Phase 2: Comprehensive analysis
                 print("\n📊 Phase 2: Conducting comprehensive financial analysis...")
-                analysis_results = self.swarm.process_phase()
-
+                tool_context_phase2 = {"query": query, "ticker": ticker, "task": "comprehensive_analysis"}
+                print(f"🔧 DEBUG: Calling swarm.process_phase() for phase 2 with context: {tool_context_phase2}")
+                phase2_result = self.swarm.process_phase(tool_context_phase2)
+                print(f"🔧 DEBUG: Phase 2 result: {type(phase2_result)}")
+                
                 return {
                     "status": "success",
                     "ticker": ticker,
-                    "company_info": company_info,
-                    "search_results": search_result,
-                    "analysis_results": analysis_results,
-                    "shared_memory": self.swarm.shared_memory.get_all_knowledge() if hasattr(self.swarm.shared_memory, 'get_all_knowledge') else {},
+                    "swarm_response": str(phase2_result),
+                    "phase1_result": str(phase1_result),
+                    "coordination_method": "swarm_process_phase"
                 }
             else:
-                return {"status": "error", "message": "Failed to find company information"}
+                print(f"🔧 DEBUG: Phase 1 returned no results")
+                return {"status": "error", "message": "Swarm phase 1 analysis returned no response"}
 
         except Exception as e:
             return {"status": "error", "message": f"Swarm analysis error: {str(e)}"}
     
     def _simple_analyze_company(self, query: str) -> Dict[str, Any]:
         """Simple company analysis when swarm tools are not available."""
+        print(f"🔧 DEBUG: _simple_analyze_company called with query='{query}'")
         try:
             print("\n🔍 Gathering company information...")
+            print(f"🔧 DEBUG: Calling search_agent with query: 'Please find company information for: {query}'")
             company_info = str(self.search_agent(f"Please find company information for: {query}"))
+            print(f"🔧 DEBUG: search_agent returned {len(company_info)} chars")
             
             # Extract ticker
+            print(f"🔧 DEBUG: Extracting ticker from company_info and query '{query}'")
             ticker = self._extract_ticker_from_info(company_info, query)
+            print(f"🔧 DEBUG: Extracted ticker: '{ticker}'")
             
             print(f"\n📊 Analyzing {ticker} with individual agents...")
             
             # Get analysis from each agent
+            print(f"🔧 DEBUG: Calling price_agent for ticker '{ticker}'")
             price_analysis = str(self.price_agent(f"Analyze stock prices for {ticker}"))
-            metrics_analysis = str(self.metrics_agent(f"Analyze financial metrics for {ticker}"))
-            news_analysis = str(self.news_agent(f"Analyze recent news and sentiment for {ticker}"))
+            print(f"🔧 DEBUG: price_agent returned {len(price_analysis)} chars")
             
-            return {
+            print(f"🔧 DEBUG: Calling metrics_agent for ticker '{ticker}'")
+            metrics_analysis = str(self.metrics_agent(f"Analyze financial metrics for {ticker}"))
+            print(f"🔧 DEBUG: metrics_agent returned {len(metrics_analysis)} chars")
+            
+            print(f"🔧 DEBUG: Calling news_agent for ticker '{ticker}'")
+            news_analysis = str(self.news_agent(f"Analyze recent news and sentiment for {ticker}"))
+            print(f"🔧 DEBUG: news_agent returned {len(news_analysis)} chars")
+            
+            result = {
                 "status": "success",
                 "ticker": ticker,
                 "company_info": company_info,
@@ -281,32 +294,61 @@ class StockAnalysisSwarm:
                 "news_analysis": news_analysis,
                 "coordination_method": "individual_agents"
             }
+            print(f"🔧 DEBUG: _simple_analyze_company returning success result")
+            return result
             
         except Exception as e:
+            print(f"🔧 DEBUG: Exception in _simple_analyze_company: {type(e).__name__}: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return {"status": "error", "message": f"Individual agent analysis error: {str(e)}"}
     
     def _extract_ticker_from_info(self, company_info: str, query: str) -> str:
         """Extract ticker symbol from company information."""
-        # Simple extraction logic - look for ticker patterns
         import re
         
-        # Look for ticker patterns in the company info
+        # First, check if the query itself is a ticker (most reliable)
+        if re.match(r'^[A-Z]{1,5}$', query.upper().strip()):
+            return query.upper().strip()
+        
+        # Look for specific ticker patterns in the company info
         ticker_patterns = [
             r'ticker[:\s]+([A-Z]{1,5})',
             r'symbol[:\s]+([A-Z]{1,5})',
-            r'\b([A-Z]{1,5})\b',  # Any 1-5 letter uppercase word
+            r'stock\s+symbol[:\s]+([A-Z]{1,5})',
+            r'\(([A-Z]{1,5})\)',  # Ticker in parentheses like "Apple Inc (AAPL)"
         ]
         
         for pattern in ticker_patterns:
             matches = re.findall(pattern, company_info, re.IGNORECASE)
             if matches:
-                return matches[0].upper()
+                ticker = matches[0].upper().strip()
+                # Validate it's actually a ticker format
+                if re.match(r'^[A-Z]{1,5}$', ticker):
+                    return ticker
         
-        # Fallback: use the query itself if it looks like a ticker
-        if re.match(r'^[A-Z]{1,5}$', query.upper()):
-            return query.upper()
+        # Try to extract from known company name patterns
+        company_mappings = {
+            'APPLE': 'AAPL',
+            'MICROSOFT': 'MSFT', 
+            'GOOGLE': 'GOOGL',
+            'AMAZON': 'AMZN',
+            'TESLA': 'TSLA',
+            'NVIDIA': 'NVDA',
+            'META': 'META'
+        }
         
-        return query.upper()  # Final fallback
+        query_upper = query.upper()
+        for company, ticker in company_mappings.items():
+            if company in query_upper:
+                return ticker
+        
+        # Final fallback: if query looks like it could be a ticker, use it
+        clean_query = re.sub(r'[^A-Z]', '', query.upper())
+        if 1 <= len(clean_query) <= 5:
+            return clean_query
+            
+        return query.upper().strip()  # Last resort
 
 
 def create_orchestration_agent() -> Agent:
@@ -323,60 +365,32 @@ def create_orchestration_agent() -> Agent:
     @tool
     def analyze_company_tool(query: str) -> str:
         """Analyze a company using the Finnhub-powered swarm of financial agents."""
-        result = swarm_instance.analyze_company(query)
-        return str(result)
+        print(f"🔧 DEBUG: analyze_company_tool called with query='{query}'")
+        try:
+            result = swarm_instance.analyze_company(query)
+            print(f"🔧 DEBUG: swarm_instance.analyze_company returned: {type(result)}")
+            if isinstance(result, dict) and result.get('status') == 'error':
+                print(f"🔧 DEBUG: Error in swarm analysis: {result.get('message')}")
+            return str(result)
+        except Exception as e:
+            print(f"🔧 DEBUG: Exception in analyze_company_tool: {type(e).__name__}: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            raise
     
     return Agent(
-        system_prompt="""You are a comprehensive stock analysis orchestrator using Finnhub API-powered agents. Your role is to:
-        1. Coordinate a swarm of specialized financial analysis agents
-        2. Monitor the Finnhub-powered analysis process
-        3. Integrate and synthesize findings from multiple data sources
-        4. Present institutional-grade investment analysis
-        
-        When analyzing results, structure the comprehensive report as follows:
-        
-        1. Executive Summary
-           - Investment recommendation (BUY/HOLD/SELL)
-           - Key investment thesis
-           - Risk assessment summary
-        
-        2. Company Overview
-           - Company name, ticker, and exchange information
-           - Industry sector and market capitalization
-           - Business description and competitive position
-           - Geographic presence and market focus
-        
-        3. Financial Analysis (Finnhub Data)
-           - Current stock price and recent performance
-           - Key financial metrics and ratios
-           - Profitability and growth indicators
-           - Financial health and stability assessment
-        
-        4. Technical & Price Analysis
-           - Current price trends and patterns
-           - Trading volume and market activity
-           - Technical indicators and momentum
-           - Support and resistance levels
-        
-        5. Market Intelligence
-           - Recent news analysis and sentiment
-           - Market perception and analyst coverage
-           - Key developments and catalysts
-           - Industry trends and competitive dynamics
-        
-        6. Investment Assessment
-           - Valuation analysis and price targets
-           - Growth prospects and opportunities
-           - Risk factors and potential challenges
-           - Investment timeline and holding considerations
-        
-        7. Final Recommendation
-           - Clear investment decision with rationale
-           - Target price and expected returns
-           - Risk mitigation strategies
-           - Portfolio allocation suggestions
-        
-        Focus on providing actionable, professional-grade investment analysis suitable for informed decision-making.""",
+        system_prompt="""You are a stock analysis orchestrator. When a user asks you to analyze a company, you MUST extract the company name or ticker from their request and call analyze_company_tool with that parameter.
+
+CRITICAL INSTRUCTIONS:
+1. Extract the company name/ticker from the user's request (e.g., "AAPL", "Apple", "Microsoft", etc.)
+2. Call analyze_company_tool(company_name) with the extracted company identifier
+3. Only provide analysis based on the tool's response
+4. Never generate fictional data
+
+EXAMPLES:
+- User: "Analyze AAPL" → Call: analyze_company_tool("AAPL")  
+- User: "Investment analysis of Apple" → Call: analyze_company_tool("Apple")
+- User: "Tell me about Microsoft stock" → Call: analyze_company_tool("Microsoft")""",
         model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region=os.getenv("AWS_DEFAULT_REGION", "us-west-2")),
         tools=[analyze_company_tool],
     )

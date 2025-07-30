@@ -1,9 +1,7 @@
 # Multi-Agent Systems for Financial Services
 ## A Self-Study Guide to Agentic AI Architecture Development
 
-## 🚨 BUILT WITH STRANDS AGENTS SDK (TOP PRIORITY)
-
-**This repository prioritizes Strands Agents SDK above all other frameworks**. Every implementation, example, and educational content demonstrates Strands SDK best practices as the primary multi-agent development framework.
+This educational resource is designed to provide a comprehensive introduction to multi-agent AI systems through practical, real-world financial services applications. The combination of theoretical foundations and hands-on implementation provides learners with both conceptual understanding and practical skills needed for modern AI system development.
 
 *This work is a derivative of original research and principles developed for the broader financial services technical community. We acknowledge and credit the original author's foundational work, Alfredo Castillo, Sr Solutions Architect – FSI GenAI at AWS, in multi-agent system design principles.*
 

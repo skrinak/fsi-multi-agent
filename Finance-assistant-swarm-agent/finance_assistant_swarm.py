@@ -228,7 +228,7 @@ class StockAnalysisSwarm:
         print("✅ Individual agent coordination ready - synchronized multi-agent analysis")
 
     def analyze_company(self, query: str) -> Dict[str, Any]:
-        """Run the swarm analysis for a company using Finnhub-powered agents."""
+        """Run the swarm analysis for a company using Multi-Agent System agents."""
         try:
             if not SWARM_AVAILABLE:
                 return self._simple_analyze_company(query)
@@ -352,7 +352,7 @@ Coordination: Sequential handoffs for clean output"""
 
 
 def create_orchestration_agent() -> Agent:
-    """Create the main orchestration agent that coordinates the Finnhub-powered swarm."""
+    """Create the main orchestration agent that coordinates the Multi-Agent System swarm."""
     # Check for API key before creating orchestration agent
     if not os.getenv('FINNHUB_API_KEY'):
         print("⚠️ Warning: FINNHUB_API_KEY not found - some features may be limited")
@@ -364,7 +364,7 @@ def create_orchestration_agent() -> Agent:
     
     @tool
     def analyze_company_tool(query: str) -> str:
-        """Analyze a company using the Finnhub-powered swarm of financial agents."""
+        """Analyze a company using the Multi-Agent System swarm of financial agents."""
         try:
             result = swarm_instance.analyze_company(query)
             return str(result)
@@ -408,7 +408,7 @@ def create_initial_messages() -> List[Dict]:
 
 
 def main():
-    """Main function to run the Finnhub-powered finance assistant swarm."""
+    """Main function to run the Multi-Agent System finance assistant swarm."""
     # Check for API key at startup
     if not os.getenv('FINNHUB_API_KEY'):
         print("❌ Error: FINNHUB_API_KEY not found in environment variables")
@@ -422,7 +422,7 @@ def main():
     # Initialize messages for the orchestration agent
     orchestration_agent.messages = create_initial_messages()
 
-    print("\n🏢 Finnhub-Powered Stock Analysis Swarm 📊")
+    print("\n🏢 Multi-Agent System Stock Analysis Swarm 📊")
     print("=" * 55)
     print("Comprehensive investment analysis using specialized financial agents")
     print("Type 'exit' to quit\n")

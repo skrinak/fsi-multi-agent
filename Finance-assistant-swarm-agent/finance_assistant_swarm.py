@@ -12,7 +12,7 @@ import os
 from typing import Dict, Any, List
 from dotenv import load_dotenv
 
-# Third-party imports
+# STRANDS AGENTS SDK (TOP PRIORITY)
 from strands import Agent
 from strands.models import BedrockModel
 from strands_tools import think, http_request

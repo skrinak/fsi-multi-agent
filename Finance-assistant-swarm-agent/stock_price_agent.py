@@ -14,12 +14,14 @@ import time
 from typing import Dict, Union
 from dotenv import load_dotenv
 
-# Third-party imports
-import finnhub
-import requests
+# STRANDS AGENTS SDK (TOP PRIORITY)
 from strands import Agent, tool
 from strands.models.bedrock import BedrockModel
 from strands_tools import think, http_request
+
+# Third-party imports
+import finnhub
+import requests
 
 # Load environment variables
 load_dotenv()

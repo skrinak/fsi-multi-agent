@@ -5,10 +5,36 @@ Quick validation test to confirm multi-agent systems are working properly.
 
 import sys
 import os
+import signal
 from dotenv import load_dotenv
 
 # Add the Finance-assistant-swarm-agent directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'Finance-assistant-swarm-agent'))
+
+class TimeoutError(Exception):
+    pass
+
+def timeout_handler(signum, frame):
+    raise TimeoutError("Test timed out")
+
+def run_with_timeout(func, timeout_seconds=30):
+    """Run a function with a timeout to prevent hanging."""
+    if os.name == 'nt':  # Windows doesn't support alarm
+        return func()
+    
+    # Set up the timeout
+    old_handler = signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(timeout_seconds)
+    
+    try:
+        result = func()
+        signal.alarm(0)  # Cancel the alarm
+        return result
+    except TimeoutError:
+        print(f"⚠️ Test timed out after {timeout_seconds} seconds")
+        return False
+    finally:
+        signal.signal(signal.SIGALRM, old_handler)
 
 def test_finance_agent_creation():
     """Test that we can create and use a finance agent"""
@@ -37,6 +63,7 @@ def test_hierarchical_system():
     
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'graph_IntelligentLoanUnderwriting'))
     
+    system = None
     try:
         from IntelligentLoanApplication_Graph import HierarchicalLoanUnderwritingSystem
         
@@ -44,10 +71,21 @@ def test_hierarchical_system():
         system = HierarchicalLoanUnderwritingSystem()
         print("✅ Hierarchical system created successfully")
         
+        # Clean shutdown to prevent hanging
+        print("Shutting down system...")
+        system.shutdown_system()
+        print("✅ System shutdown complete")
+        
         return True
         
     except Exception as e:
         print(f"❌ Hierarchical system creation failed: {e}")
+        # Attempt cleanup even on failure
+        if system is not None:
+            try:
+                system.shutdown_system()
+            except:
+                pass  # Ignore cleanup errors
         return False
 
 def test_basic_api_functions():
@@ -88,7 +126,11 @@ def main():
     
     for test_name, test_func in tests:
         try:
-            result = test_func()
+            # Use timeout wrapper for potentially hanging tests
+            if "Hierarchical" in test_name:
+                result = run_with_timeout(test_func, timeout_seconds=45)
+            else:
+                result = run_with_timeout(test_func, timeout_seconds=30)
             results.append((test_name, result))
         except Exception as e:
             print(f"❌ {test_name} crashed: {e}")
@@ -116,7 +158,17 @@ def main():
         return False
 
 if __name__ == "__main__":
-    success = main()
-    
-    if not success:
+    try:
+        success = main()
+        
+        if not success:
+            sys.exit(1)
+        else:
+            print("\n🎯 Quick validation completed successfully!")
+            sys.exit(0)
+    except KeyboardInterrupt:
+        print("\n⚠️ Test interrupted by user")
+        sys.exit(130)
+    except Exception as e:
+        print(f"\n❌ Unexpected error during testing: {e}")
         sys.exit(1)

@@ -2,6 +2,23 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🚨 CRITICAL PRIORITY: STRANDS AGENTS SDK FIRST
+
+**ABSOLUTE REQUIREMENT**: Strands Agents SDK usage takes **TOP PRIORITY** in all development decisions:
+
+- **Code Writing**: All agent implementations MUST use Strands Agents SDK patterns and tools
+- **Planning**: Every design decision MUST prioritize Strands SDK compatibility and best practices  
+- **Changes**: Any modification MUST maintain and enhance Strands Agents integration
+- **Architecture**: System design MUST leverage Strands SDK capabilities as the primary framework
+- **Dependencies**: Strands Agents SDK dependencies take precedence over all others
+- **Educational Support**: All examples and documentation MUST demonstrate Strands SDK usage
+
+**Framework Hierarchy**:
+1. **Strands Agents SDK** - Primary framework (TOP PRIORITY)
+2. AWS Bedrock - LLM backend (via Strands integration)
+3. Financial APIs - Data sources (integrated through Strands tools)
+4. Other dependencies - Supporting libraries only
+
 ## Repository Overview
 
 This repository contains a comprehensive multi-agent systems implementation for Financial Services Intelligence (FSI) applications. **All implementations have been migrated from yfinance to Finnhub API and converted from Jupyter notebooks to executable Python modules.**
@@ -59,9 +76,9 @@ The project uses different dependency management approaches:
 
 **All modules now have comprehensive requirements files with proper version specifications:**
 
-#### Core Framework Dependencies:
-- `strands-agents>=0.1.7`: Core agent framework (Strands Agents SDK)
-- `strands-agents-tools>=0.1.5`: Agent tooling and utilities
+#### Core Framework Dependencies (TOP PRIORITY):
+- `strands-agents>=0.1.7`: **PRIMARY FRAMEWORK** - Core agent framework (Strands Agents SDK)
+- `strands-agents-tools>=0.1.5`: **PRIMARY TOOLING** - Agent tooling and utilities (REQUIRED for all implementations)
 
 #### Financial Data & Web Intelligence:
 - `finnhub-python>=2.4.18`: Stock market and financial data via Finnhub API (**replaces yfinance**)
@@ -178,20 +195,23 @@ response = price_agent("Analyze AAPL stock price trends over the last 3 months")
 
 ## Key Implementation Patterns
 
-### Agent Creation (Post-Migration)
-All agents follow the updated pattern:
-1. Tool creation with `@tool` decorators from Strands SDK
-2. **Finnhub API integration** with comprehensive error handling
-3. Environment variable management with `python-dotenv`
-4. Structured data processing with confidence scoring
-5. Multi-source intelligence (Finnhub + web scraping)
-6. Professional-grade financial analysis output
+### Agent Creation (Post-Migration) - STRANDS SDK FIRST
+All agents follow the **STRANDS AGENTS SDK** pattern as PRIMARY REQUIREMENT:
+1. **Strands SDK Agent Creation** - Use `Agent` class from `strands` module (MANDATORY)
+2. **Strands Tool Creation** - Use `@tool` decorators from Strands SDK (REQUIRED)
+3. **Strands Communication** - Use Strands coordination patterns and tools (PRIMARY)
+4. Finnhub API integration with comprehensive error handling (via Strands tools)
+5. Environment variable management with `python-dotenv` (Strands compatible)
+6. Structured data processing with confidence scoring (Strands format)
+7. Multi-source intelligence (Finnhub + web scraping via Strands tools)
+8. Professional-grade financial analysis output (Strands agent responses)
 
-### Swarm Coordination
-- Uses `Swarm` class with shared memory systems
-- `SwarmAgent` instances for specialized financial roles
-- Coordination patterns: "collaborative", "competitive", "mesh", "hierarchical", "sequential"
-- Fallback to individual agent coordination when swarm tools unavailable
+### Swarm Coordination - STRANDS SDK NATIVE
+- **PRIMARY**: Uses `Swarm` class from Strands Agents SDK (strands-agents-tools)
+- **REQUIRED**: `SwarmAgent` instances for specialized financial roles (Strands SDK)
+- **NATIVE PATTERNS**: "collaborative", "competitive", "mesh", "hierarchical", "sequential" (Strands built-in)
+- **STRANDS TOOLS**: swarm, workflow, agent_graph tools from strands-agents-tools
+- Fallback to individual agent coordination using Strands Agent class when swarm tools unavailable
 
 ### Data Flow and API Integration
 - **Primary Data Source**: Finnhub API for all financial data

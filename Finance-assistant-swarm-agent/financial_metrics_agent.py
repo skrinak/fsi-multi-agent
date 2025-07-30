@@ -11,11 +11,13 @@ import os
 from typing import Dict, Union
 from dotenv import load_dotenv
 
-# Third-party imports
-import finnhub
+# STRANDS AGENTS SDK (TOP PRIORITY)
 from strands import Agent, tool
 from strands.models.bedrock import BedrockModel
 from strands_tools import think, http_request
+
+# Third-party imports
+import finnhub
 
 # Load environment variables - check multiple locations
 load_dotenv()  # Current directory

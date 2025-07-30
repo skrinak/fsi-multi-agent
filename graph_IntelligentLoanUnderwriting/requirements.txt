@@ -1,4 +1,4 @@
-# Core Strands Framework
+# STRANDS AGENTS SDK (TOP PRIORITY) - Primary multi-agent framework
 strands-agents>=0.1.7
 strands-agents-tools>=0.1.5
 

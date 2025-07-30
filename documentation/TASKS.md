@@ -1,8 +1,16 @@
 # Development Tasks & Context Guide
 ## Multi-Agent Systems for Financial Services - Deloitte Implementation
 
+## 🚨 CRITICAL PRIORITY: STRANDS AGENTS SDK FIRST
+
+**TOP PRIORITY FOR ALL DEVELOPMENT**: Every task, code change, and architectural decision MUST prioritize Strands Agents SDK usage:
+- All agent implementations MUST use Strands SDK patterns
+- All coordination MUST use Strands tools (swarm, workflow, agent_graph)
+- All development MUST maintain Strands SDK compatibility
+- All examples MUST demonstrate Strands SDK best practices
+
 ### Project Context
-This document provides development teams with actionable tasks and context for enhancing the existing multi-agent financial services platform. All tasks are prioritized based on business impact and technical feasibility.
+This document provides development teams with actionable tasks and context for enhancing the existing multi-agent financial services platform. All tasks are prioritized based on business impact and technical feasibility, with **Strands Agents SDK compliance as the PRIMARY requirement**.
 
 ---
 
@@ -44,12 +52,13 @@ This document provides development teams with actionable tasks and context for e
 
 ### 📋 API Key Acquisition (Complete Before Development)
 
-#### Priority 1: Essential Infrastructure (Required for all development)
+#### Priority 1: Essential Infrastructure (Required for all development - STRANDS SDK FIRST)
 - [ ] **AWS Credentials** (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
-  - Required for Strands Agents SDK and Bedrock models
+  - **PRIMARY PURPOSE**: Required for Strands Agents SDK and Bedrock models
+  - **STRANDS REQUIREMENT**: Enables Strands SDK to access AWS Bedrock LLMs
   - Sign up at https://aws.amazon.com/
-  - Enable Amazon Bedrock and Nova Pro model access
-  - **Cost**: Pay-per-use, ~$0.0008 per 1K input tokens
+  - Enable Amazon Bedrock and Nova Pro model access (for Strands SDK integration)
+  - **Cost**: Pay-per-use, ~$0.0008 per 1K input tokens (through Strands SDK)
 
 #### Priority 2: Free Stock Data Sources (Recommended yfinance alternatives)
 - [ ] **Finnhub API** (FINNHUB_API_KEY)

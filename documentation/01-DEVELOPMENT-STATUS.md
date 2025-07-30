@@ -124,18 +124,22 @@
 
 ## 🏗️ Architecture Decisions Made
 
-### Technology Stack
-- **Backend**: Python with Strands Agents SDK
-- **Models**: Amazon Nova Pro, Claude 3.5 Sonnet via Bedrock
-- **CLI Framework**: Click or argparse for user interfaces
-- **Logging**: Python logging module with structured output
-- **Testing**: pytest with 80%+ coverage requirement
+### Technology Stack - STRANDS AGENTS SDK FIRST
+- **PRIMARY FRAMEWORK**: Strands Agents SDK (ABSOLUTE TOP PRIORITY)
+- **Backend**: Python with Strands Agents SDK as core architecture
+- **Agent Creation**: Strands Agent class and @tool decorators (MANDATORY)
+- **Coordination**: Strands native tools (swarm, workflow, agent_graph) (REQUIRED)
+- **Models**: Amazon Nova Pro, Claude 3.5 Sonnet via Bedrock (through Strands SDK)
+- **CLI Framework**: Strands Agent interfaces preferred, Click/argparse as fallback
+- **Logging**: Python logging module with structured output (Strands compatible)
+- **Testing**: pytest with 80%+ coverage requirement (must validate Strands SDK usage)
 
-### Development Constraints
-- **No Jupyter Notebooks**: All final code must be plain Python
-- **Cross-platform Support**: macOS, Windows, Linux compatibility
-- **Enterprise Security**: PII encryption, audit trails, compliance-ready
-- **Rate Limiting**: Built-in throttling for external API calls
+### Development Constraints - STRANDS SDK COMPLIANCE REQUIRED
+- **STRANDS SDK MANDATORY**: All code must use Strands Agents SDK patterns and tools
+- **No Jupyter Notebooks**: All final code must be plain Python (with Strands SDK usage)
+- **Cross-platform Support**: macOS, Windows, Linux compatibility (Strands SDK compatible)
+- **Enterprise Security**: PII encryption, audit trails, compliance-ready (via Strands patterns)
+- **Rate Limiting**: Built-in throttling for external API calls (integrated with Strands tools)
 
 ---
 

@@ -33,10 +33,10 @@
     * **Strengths:** Comprehensive source for market data, good for global ticker coverage.
 
 6.  **Finnhub**
-    * **Data:** Real-time and historical stock quotes, company fundamentals, economic data, and alternative data.
-    * **Coverage:** Global markets (60+ stock exchanges) with 20+ years of EOD and intraday data, and 30+ years of financial statements.
+    * **Data:** Real-time stock quotes, company fundamentals, economic data, and alternative data. *Note: This system uses Finnhub primarily for real-time pricing data only.*
+    * **Coverage:** Global markets (60+ stock exchanges) with current market data and company profiles.
     * **Cost:** Generous free plan with 60 API calls/minute.
-    * **Strengths:** Institutional-grade data, very comprehensive for fundamental analysis, and a solid free tier.
+    * **Strengths:** Institutional-grade real-time data, excellent for current market pricing, and a solid free tier for live quotes.
 
 ## Key Considerations for Early-Stage Development:
 

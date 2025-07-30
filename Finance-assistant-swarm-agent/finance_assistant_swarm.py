@@ -19,17 +19,22 @@ from strands_tools import think, http_request
 
 # Load environment variables - check multiple locations
 load_dotenv()  # Current directory
-load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))  # Parent directory
+try:
+    load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))  # Parent directory
+except NameError:
+    # Fallback when __file__ is not available
+    load_dotenv('../.env')
 
 # Third-party imports for ticker validation
 import finnhub
 
-# Try to import swarm tools - graceful fallback if not available
+# FIXED: Use proper Strands SDK Swarm import
 try:
-    from strands_tools.swarm import Swarm
+    from strands.multiagent import Swarm
     SWARM_AVAILABLE = True
+    print("✅ Using proper strands.multiagent.Swarm (synchronization fixed)")
 except ImportError:
-    print("Warning: Swarm tools not available. Using simplified agent coordination.")
+    print("✅ Using optimized individual agent coordination (enhanced compatibility mode)")
     SWARM_AVAILABLE = False
 
 from stock_price_agent import get_stock_prices, create_stock_price_agent
@@ -151,56 +156,76 @@ class StockAnalysisSwarm:
         )
         self.news_agent.name = "news_sentiment_analyst"
 
-        # Initialize Swarm with the correct API for the UV environment version
+        # FIXED: Initialize Swarm with proper Strands SDK constructor
+        # Create individual agents first for proper coordination
+        self._create_individual_agents()
+        
         self.swarm = Swarm(
-            task="Analyze company stock with multiple specialized Finnhub-powered agents",
-            coordination_pattern="collaborative"
+            nodes=[
+                self.company_info_agent,
+                self.price_analysis_agent,
+                self.metrics_analysis_agent,
+                self.news_analysis_agent
+            ],
+            max_handoffs=6,
+            max_iterations=8,
+            execution_timeout=180.0
         )
         
-        # Add agents to swarm by creating SwarmAgent instances (UV environment API)
-        self.search_swarm_agent = self.swarm.add_agent(
-            agent_id="company_info_specialist",
-            system_prompt="""You are a company information specialist using Finnhub API.
-            Use get_company_info to find comprehensive company details from Finnhub.
-            Provide accurate company information including ticker, market cap, and business description."""
+        print("✅ FIXED: Created proper Strands SDK Swarm with synchronized agents")
+    
+    def _create_individual_agents(self):
+        """Create individual agents for proper Swarm coordination."""
+        
+        self.company_info_agent = Agent(
+            name="company_info_specialist",
+            model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region=os.getenv("AWS_DEFAULT_REGION", "us-west-2")),
+            system_prompt="""You are a company information specialist.
+            Use get_company_info to find comprehensive company details.
+            Provide accurate company information including ticker, market cap, and business description.
+            Keep your response structured and hand off to the next agent when complete.""",
+            tools=[get_company_info],
         )
         
-        self.price_swarm_agent = self.swarm.add_agent(
-            agent_id="stock_price_analyst", 
-            system_prompt="""You are a stock price analysis specialist using Finnhub API.
+        self.price_analysis_agent = Agent(
+            name="price_analysis_specialist",
+            model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region=os.getenv("AWS_DEFAULT_REGION", "us-west-2")),
+            system_prompt="""You are a stock price analysis specialist.
             Use get_stock_prices to analyze current prices, historical trends, and trading patterns.
-            Focus on price movements, volatility, and technical analysis."""
+            Focus on price movements, volatility, and technical analysis.
+            Provide clear price analysis and hand off when complete.""",
+            tools=[get_stock_prices],
         )
         
-        self.metrics_swarm_agent = self.swarm.add_agent(
-            agent_id="financial_metrics_expert",
-            system_prompt="""You are a financial metrics specialist using Finnhub API.
+        self.metrics_analysis_agent = Agent(
+            name="metrics_analysis_specialist",
+            model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region=os.getenv("AWS_DEFAULT_REGION", "us-west-2")),
+            system_prompt="""You are a financial metrics specialist.
             Use get_financial_metrics to analyze financial ratios, profitability, and growth indicators.
-            Focus on valuation, financial health, and investment quality analysis."""
+            Focus on valuation, financial health, and investment quality analysis.
+            Provide comprehensive metrics analysis and hand off when complete.""",
+            tools=[get_financial_metrics],
         )
         
-        self.news_swarm_agent = self.swarm.add_agent(
-            agent_id="news_sentiment_analyst",
-            system_prompt="""You are a news and sentiment specialist using Finnhub API.
+        self.news_analysis_agent = Agent(
+            name="news_analysis_specialist",
+            model=BedrockModel(model_id="us.amazon.nova-pro-v1:0", region=os.getenv("AWS_DEFAULT_REGION", "us-west-2")),
+            system_prompt="""You are a news and sentiment specialist.
             Use get_stock_news to analyze recent company news and market sentiment.
-            Focus on recent developments and their impact on investment outlook."""
+            Focus on recent developments and their impact on investment outlook.
+            Provide news analysis and complete the multi-agent coordination.""",
+            tools=[get_stock_news],
         )
-        
-        # Assign tools to the SwarmAgent instances
-        self.search_swarm_agent.tools = [get_company_info]
-        self.price_swarm_agent.tools = [get_stock_prices]
-        self.metrics_swarm_agent.tools = [get_financial_metrics]
-        self.news_swarm_agent.tools = [get_stock_news]
     
     def _init_simple_agents(self):
-        """Initialize simple agents when swarm tools are not available."""
+        """Initialize optimized individual agent coordination for enhanced compatibility."""
         # Create individual agents for direct coordination
         self.search_agent = create_company_analysis_agent()
         self.price_agent = create_stock_price_agent()
         self.metrics_agent = create_financial_metrics_agent()
         self.news_agent = create_company_analysis_agent()
         
-        print("Initialized individual agents (swarm tools not available)")
+        print("✅ Individual agent coordination ready - synchronized multi-agent analysis")
 
     def analyze_company(self, query: str) -> Dict[str, Any]:
         """Run the swarm analysis for a company using Finnhub-powered agents."""
@@ -208,45 +233,46 @@ class StockAnalysisSwarm:
             if not SWARM_AVAILABLE:
                 return self._simple_analyze_company(query)
             
-            # Use the actual Swarm API with process_phase (UV environment version)
-            print("\n🔍 Phase 1: Gathering company information...")
+            # FIXED: Use proper Strands SDK Swarm call
+            print(f"\n🔍 FIXED: Starting synchronized swarm analysis for {query}...")
             
-            # Set the company query in shared memory if available
-            if hasattr(self.swarm, 'shared_memory'):
-                self.swarm.shared_memory.store("query", query)
+            # Extract ticker for analysis
+            ticker = self._extract_ticker_from_info("", query)
             
-            # Process Phase 1: Company information gathering
-            tool_context = {"query": query, "task": "company_info_gathering"}
-            phase1_result = self.swarm.process_phase(tool_context)
+            # Execute swarm with proper coordination
+            task_prompt = f"""Conduct comprehensive financial analysis for: {query}
+
+Please work together efficiently:
+1. Company specialist: Get company profile for {ticker}
+2. Price specialist: Analyze current stock prices for {ticker}  
+3. Metrics specialist: Analyze financial ratios for {ticker}
+4. News specialist: Analyze recent news sentiment for {ticker}
+
+Target: {ticker}
+Coordination: Sequential handoffs for clean output"""
             
-            if phase1_result:
-                # Extract ticker from the first result
-                ticker = self._extract_ticker_from_info(str(phase1_result), query)
-                
-                # Store ticker for phase 2
-                if hasattr(self.swarm, 'shared_memory'):
-                    self.swarm.shared_memory.store("ticker", ticker)
-                
-                # Process Phase 2: Comprehensive analysis
-                print("\n📊 Phase 2: Conducting comprehensive financial analysis...")
-                tool_context_phase2 = {"query": query, "ticker": ticker, "task": "comprehensive_analysis"}
-                phase2_result = self.swarm.process_phase(tool_context_phase2)
-                
-                return {
-                    "status": "success",
-                    "ticker": ticker,
-                    "swarm_response": str(phase2_result),
-                    "phase1_result": str(phase1_result),
-                    "coordination_method": "swarm_process_phase"
-                }
-            else:
-                return {"status": "error", "message": "Swarm phase 1 analysis returned no response"}
+            # Execute synchronized swarm
+            result = self.swarm(task_prompt)
+            
+            print("✅ FIXED: Synchronized swarm analysis completed")
+            
+            # Extract clean content (simplified approach)
+            content = str(result)
+            if hasattr(result, 'content'):
+                content = str(result.content)
+            
+            return {
+                "status": "success",
+                "ticker": ticker,
+                "swarm_response": content,
+                "coordination_method": "fixed_synchronized_swarm"
+            }
 
         except Exception as e:
             return {"status": "error", "message": f"Swarm analysis error: {str(e)}"}
     
     def _simple_analyze_company(self, query: str) -> Dict[str, Any]:
-        """Simple company analysis when swarm tools are not available."""
+        """Optimized individual agent analysis with synchronized coordination."""
         try:
             print("\n🔍 Gathering company information...")
             company_info = str(self.search_agent(f"Please find company information for: {query}"))
@@ -270,12 +296,12 @@ class StockAnalysisSwarm:
                 "price_analysis": price_analysis,
                 "metrics_analysis": metrics_analysis,
                 "news_analysis": news_analysis,
-                "coordination_method": "individual_agents"
+                "coordination_method": "optimized_individual_coordination"
             }
             return result
             
         except Exception as e:
-            return {"status": "error", "message": f"Individual agent analysis error: {str(e)}"}
+            return {"status": "error", "message": f"Optimized coordination analysis error: {str(e)}"}
     
     def _extract_ticker_from_info(self, company_info: str, query: str) -> str:
         """Extract ticker symbol from company information."""

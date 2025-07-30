@@ -93,7 +93,8 @@ AccessDeniedException: You don't have access to the model with the specified mod
 **Required Environment Variables:**
 ```bash
 # Financial data access
-FINNHUB_API_KEY=your_finnhub_api_key
+FINNHUB_API_KEY=your_finnhub_api_key  # For real-time quotes only
+FINANCIAL_MODELING_PREP_API_KEY=your_fmp_key  # For historical data
 
 # AWS Bedrock access  
 AWS_ACCESS_KEY_ID=your_access_key

@@ -42,7 +42,8 @@ Each pattern includes comprehensive test suites:
 2. **Environment Variables**
    ```bash
    # Required
-   FINNHUB_API_KEY=your_finnhub_api_key
+   FINNHUB_API_KEY=your_finnhub_api_key  # For real-time quotes only
+   FINANCIAL_MODELING_PREP_API_KEY=your_fmp_key  # For historical data
    AWS_ACCESS_KEY_ID=your_access_key
    AWS_SECRET_ACCESS_KEY=your_secret_key
    AWS_DEFAULT_REGION=us-west-2  # Set in .env file

@@ -62,11 +62,11 @@ This document provides development teams with actionable tasks and context for e
 
 #### Priority 2: Free Stock Data Sources (Recommended yfinance alternatives)
 - [ ] **Finnhub API** (FINNHUB_API_KEY)
-  - Real-time stock data with generous free tier
+  - Real-time stock quotes with generous free tier (not for historical data)
   - Sign up at https://finnhub.io/
   - **Cost**: Free tier (60 calls/minute), $99/month professional
   - **Timeline**: Immediate registration
-  - **Data**: Real-time quotes, fundamentals, news, global markets
+  - **Data**: Real-time quotes, company profiles, current market data
 
 - [ ] **Alpha Vantage** (ALPHA_VANTAGE_API_KEY)
   - Comprehensive market data with generous free tier
@@ -76,11 +76,11 @@ This document provides development teams with actionable tasks and context for e
   - **Data**: Real-time/historical prices, fundamentals, technical indicators
 
 - [ ] **Financial Modeling Prep** (FINANCIAL_MODELING_PREP_API_KEY)
-  - Clean financial statements and ratios
+  - PRIMARY source for historical data, financial statements and ratios
   - Sign up at https://financialmodelingprep.com/
   - **Cost**: Free tier (250 calls/day), $14/month for 300 calls/day
   - **Timeline**: Immediate registration
-  - **Data**: Company fundamentals, historical prices, stock screener
+  - **Data**: Historical prices, company fundamentals, financial statements, stock screener
 
 #### Priority 2b: Professional Financial Data (For enterprise features requiring premium data)
 - [ ] **Bloomberg API** (BLOOMBERG_API_KEY, BLOOMBERG_SECRET)
@@ -233,9 +233,10 @@ This document provides development teams with actionable tasks and context for e
 **Objective**: Replace yfinance with reliable free alternatives and add comprehensive data sources
 **Components**: Financial Research Swarm
 **Phase 1 - Free Data Sources (Priority)**:
-- [ ] Replace yfinance with Finnhub API (60 calls/minute free tier)
+- [ ] Replace yfinance with Multi-Agent Systems data architecture
+- [ ] Primary: Financial Modeling Prep API for historical data (250 calls/day free tier)
+- [ ] Secondary: Finnhub API for real-time quotes only (60 calls/minute free tier)
 - [ ] Integrate Alpha Vantage API (500 requests/day free tier)
-- [ ] Add Financial Modeling Prep API (250 calls/day free tier)
 - [ ] Implement Polygon.io integration (5 calls/minute free tier)
 - [ ] Add Tiingo API (1000 requests/month free tier)
 **Phase 2 - Enhanced Data Sources**:

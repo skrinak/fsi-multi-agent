@@ -203,7 +203,7 @@ class FinancialSwarmArchitecture:
             "company_analysis_agent": AgentSpecification(
                 name="company_analysis_agent",
                 function="Provides company profile, business description, industry analysis",
-                data_source="Finnhub API + web scraping for comprehensive company data",
+                data_source="Multi-Agent Systems APIs + web scraping for comprehensive company data",
                 output_format="JSON with company profile, sector info, business description",
                 api_endpoints=[
                     "finnhub.io/api/v1/stock/company-profile2",
@@ -215,7 +215,7 @@ class FinancialSwarmArchitecture:
             "ticker_search_agent": AgentSpecification(
                 name="ticker_search_agent",
                 function="Resolves company names to standardized ticker symbols",
-                data_source="Shared memory + Amazon Bedrock reasoning + Finnhub symbol search",
+                data_source="Shared memory + Amazon Bedrock reasoning + Multi-Agent Systems symbol search",
                 output_format="Normalized ticker symbol string",
                 api_endpoints=[
                     "Amazon Bedrock Nova API",

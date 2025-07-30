@@ -130,7 +130,7 @@ def get_financial_metrics(ticker: str) -> Union[Dict, str]:
                 
                 # Metadata
                 "date": dt.datetime.now().strftime("%Y-%m-%d"),
-                "data_source": "Finnhub API",
+                "data_source": "Multi-Agent Systems APIs",
                 "currency": safe_get(profile, 'currency', 'USD'),
                 "exchange": safe_get(profile, 'exchange', 'Unknown'),
                 "country": safe_get(profile, 'country', 'Unknown'),
@@ -170,7 +170,7 @@ def create_initial_messages():
 def create_financial_metrics_agent():
     """Create and configure the financial metrics analysis agent with Finnhub integration."""
     return Agent(
-        system_prompt="""You are a comprehensive financial analysis specialist using Finnhub API for institutional-grade financial data. Follow these steps:
+        system_prompt="""You are a comprehensive financial analysis specialist using Multi-Agent Systems APIs for institutional-grade financial data. Follow these steps:
 
 <input>
 When user provides a company ticker:

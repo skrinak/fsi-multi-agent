@@ -21,11 +21,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This repository contains a comprehensive multi-agent systems implementation for Financial Services Intelligence (FSI) applications. **All implementations have been migrated from yfinance to Finnhub API and converted from Jupyter notebooks to executable Python modules.**
+This repository contains a comprehensive multi-agent systems implementation for Financial Services Intelligence (FSI) applications. **All implementations have been migrated from yfinance to Multi-Agent Systems APIs and converted from Jupyter notebooks to executable Python modules.**
 
 ### Migration Status: COMPLETE ✅
 - **All 12 files successfully processed** in sequential order
-- **Complete yfinance → finnhub API migration** for all financial agents
+- **Complete yfinance → Multi-Agent Systems API migration** for all financial agents
 - **All Jupyter notebooks converted to Python modules** with enhanced functionality
 - **Production-ready codebase** with comprehensive error handling and API validation
 
@@ -33,9 +33,9 @@ This repository contains a comprehensive multi-agent systems implementation for 
 
 ### Core Financial Agent Components
 
-- **Finance-assistant-swarm-agent/**: Complete finance agent swarm with Finnhub integration
+- **Finance-assistant-swarm-agent/**: Complete finance agent swarm with multi-source API integration
   - `finance_assistant_swarm.py`: Main orchestrator with swarm coordination
-  - `stock_price_agent.py`: Real-time stock data via Finnhub API
+  - `stock_price_agent.py`: Real-time and historical stock data via hybrid APIs
   - `financial_metrics_agent.py`: Comprehensive financial metrics analysis
   - `company_analysis_agent.py`: Company research with multi-source intelligence
   - `SwarmAgentArchitectureDescription.py`: Architecture documentation module
@@ -129,6 +129,13 @@ cd Finance-assistant-swarm-agent
 python finance_assistant_swarm.py
 ```
 
+**1b. Synchronized Finance Assistant Swarm (Recommended for Production)**
+```bash
+cd Finance-assistant-swarm-agent
+python finance_assistant_swarm_synchronized.py
+```
+*Uses proper Strands SDK synchronization to eliminate race conditions and formatting issues*
+
 **2. Individual Agents (Direct Execution)**
 ```bash
 cd Finance-assistant-swarm-agent
@@ -212,6 +219,23 @@ All agents follow the **STRANDS AGENTS SDK** pattern as PRIMARY REQUIREMENT:
 - **NATIVE PATTERNS**: "collaborative", "competitive", "mesh", "hierarchical", "sequential" (Strands built-in)
 - **STRANDS TOOLS**: swarm, workflow, agent_graph tools from strands-agents-tools
 - Fallback to individual agent coordination using Strands Agent class when swarm tools unavailable
+
+### 🔄 SYNCHRONIZATION IMPROVEMENTS (NEW)
+**Problem Solved**: Multiple agents writing reports simultaneously caused race conditions, truncated messages, and broken formatting.
+
+**Solution**: `finance_assistant_swarm_synchronized.py` using proper Strands SDK coordination:
+- **Proper Swarm Class**: Uses `strands.multiagent.Swarm` with `shared_context`
+- **Coordinated Handoffs**: Sequential agent execution with `max_handoffs` control
+- **Synchronized Report Builder**: Single `@tool` for consistent formatting
+- **Unique Agent Names**: Prevents identification conflicts
+- **Professional Output**: Eliminates data corruption and formatting issues
+
+**Benefits**:
+- ✅ No race conditions or truncated messages
+- ✅ Professional-quality formatted reports
+- ✅ Proper data attribution (Financial Modeling Prep + real-time APIs)
+- ✅ Production-ready enterprise deployment
+- ✅ Follows Strands SDK best practices
 
 ### Data Flow and API Integration
 - **Primary Data Source**: Finnhub API for all financial data

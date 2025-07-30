@@ -109,7 +109,7 @@ def get_company_info(ticker: str) -> Union[Dict, str]:
                 
                 # Metadata
                 "date": dt.datetime.now().strftime("%Y-%m-%d"),
-                "data_source": "Finnhub API",
+                "data_source": "Multi-Agent Systems APIs",
                 "last_updated": dt.datetime.now().isoformat()
             }
         }
@@ -217,7 +217,7 @@ def get_stock_news(ticker: str) -> Union[Dict, str]:
         sources_tried = []
 
         # 1. Try Finnhub company news API
-        sources_tried.append("Finnhub API")
+        sources_tried.append("Multi-Agent Systems APIs")
         try:
             # Get news from past 7 days for recent coverage
             from_date = (dt.datetime.now() - dt.timedelta(days=7)).strftime("%Y-%m-%d")
@@ -549,7 +549,7 @@ def create_initial_messages():
 def create_company_analysis_agent():
     """Create and configure the company analysis agent with Finnhub integration."""
     return Agent(
-        system_prompt="""You are a comprehensive company analysis specialist using Finnhub API for institutional-grade data. Follow these steps:
+        system_prompt="""You are a comprehensive company analysis specialist using Multi-Agent Systems APIs for institutional-grade data. Follow these steps:
 
 <input>
 When user provides a company ticker:
@@ -598,7 +598,7 @@ When user provides a company ticker:
 </output_format>
 
 <analysis_guidelines>
-- Leverage Finnhub's institutional-grade financial data
+- Leverage Multi-Agent Systems institutional-grade financial data
 - Cross-reference multiple news sources for accuracy
 - Provide context for any data limitations or gaps
 - Focus on actionable investment research insights

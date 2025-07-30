@@ -389,7 +389,7 @@ The claims adjudication workflow [notebook](WorkFlow_ClaimsAdjudication/ClaimsAd
 - **AWS Account** with programmatic access credentials  
 - **uv Package Manager** (recommended) - Install with: `curl -LsSf https://astral.sh/uv/install.sh | sh`
 - **Git** for repository cloning
-- **Internet Connection** for API access (AWS Bedrock, Finnhub)
+- **Internet Connection** for API access (AWS Bedrock, Financial Modeling Prep, Finnhub for real-time quotes)
 - **Minimum 4GB RAM** for concurrent multi-agent execution
 - **Basic Knowledge**: Understanding of large language models and command-line tools
 
@@ -409,8 +409,9 @@ AWS_ACCESS_KEY_ID=your_aws_access_key_here
 AWS_SECRET_ACCESS_KEY=your_aws_secret_key_here
 AWS_DEFAULT_REGION=your_preferred_aws_region  # e.g., us-west-2, us-east-1, eu-west-1
 
-# Financial Data API (REQUIRED)
-FINNHUB_API_KEY=your_finnhub_api_key_here
+# Financial Data APIs (REQUIRED)
+FINNHUB_API_KEY=your_finnhub_api_key_here  # For real-time quotes only
+FINANCIAL_MODELING_PREP_API_KEY=your_fmp_key_here  # For historical data
 
 # Optional: Enhanced Financial Data (Free Tiers Available)
 ALPHA_VANTAGE_API_KEY=your_alpha_vantage_key_here
@@ -426,9 +427,9 @@ NEWS_API_KEY=your_news_api_key_here
    - Attach `AmazonBedrockFullAccess` policy
    - Save Access Key ID and Secret Access Key
 
-2. **Finnhub API**: 
-   - Sign up free at [finnhub.io/dashboard](https://finnhub.io/dashboard)
-   - Copy API key from dashboard (60 calls/minute on free tier)
+2. **Financial Data APIs**: 
+   - **Financial Modeling Prep**: Sign up at [financialmodelingprep.com](https://financialmodelingprep.com) for historical data
+   - **Finnhub API**: Sign up at [finnhub.io/dashboard](https://finnhub.io/dashboard) for real-time quotes (60 calls/minute on free tier)
 
 ### AWS Bedrock Model Access (CRITICAL)
 
@@ -493,7 +494,7 @@ The system requires access to **exactly 3 foundation models** in your configured
    **Expected Output**: All validation tests should pass (3/3) confirming:
    - ✅ Finance Agent Creation
    - ✅ Hierarchical System 
-   - ✅ API Functions (Finnhub integration)
+   - ✅ API Functions (Multi-Agent Systems data integration)
 
 ### Running the 5 Multi-Agent Demos
 
@@ -571,10 +572,10 @@ cd Finance-assistant-swarm-agent && uv check
 ```
 
 **API Rate Limits:**
-- **Finnhub**: 60 calls/minute (free tier) - implement delays if needed
+- **Financial Modeling Prep**: 250 calls/day (free tier) - primary data source for historical data
+- **Finnhub**: 60 calls/minute (free tier) - real-time quotes only, implement delays if needed
 - **AWS Bedrock**: Model-specific limits - use exponential backoff
 - **Alpha Vantage**: 500 requests/day (free tier)
-- **Financial Modeling Prep**: 250 calls/day (free tier)
 
 **Performance Optimization:**
 - Run demos sequentially to avoid resource contention

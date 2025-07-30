@@ -157,13 +157,13 @@ def create_initial_messages():
 
 
 def create_stock_price_agent():
-    """Create and configure the stock price analysis agent with Finnhub integration."""
+    """Create and configure the stock price analysis agent with Multi-Agent Systems API integration."""
     return Agent(
-        system_prompt="""You are a stock price analysis specialist using Finnhub API for real-time financial data. Follow these steps:
+        system_prompt="""You are a stock price analysis specialist using Multi-Agent Systems APIs for financial data. Follow these steps:
 
 <input>
 When user provides a company name or ticker:
-1. Use get_stock_prices to fetch current quote and historical data from Finnhub
+1. Use get_stock_prices to fetch current quote and historical data from Multi-Agent Systems APIs
 2. Analyze price movements, trends, and trading patterns
 3. Provide comprehensive analysis in the format below
 </input>

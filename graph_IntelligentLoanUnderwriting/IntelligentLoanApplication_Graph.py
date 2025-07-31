@@ -30,7 +30,7 @@ try:
     import yaml
     from botocore.config import Config
     from strands import Agent
-    from strands_tools import agent_graph
+    from strands_tools import graph
     DEPENDENCIES_AVAILABLE = True
 except ImportError:
     print("Warning: Some dependencies not available. Running in demonstration mode.")
@@ -422,7 +422,7 @@ class HierarchicalLoanUnderwritingSystem:
         self.document_processor = LoanDocumentProcessor()
         
         if DEPENDENCIES_AVAILABLE:
-            self.agent = Agent(tools=[agent_graph])
+            self.agent = Agent(tools=[graph])
             self._create_loan_underwriting_hierarchy()
         else:
             print("Running in demo mode - Strands not available")
@@ -431,18 +431,42 @@ class HierarchicalLoanUnderwritingSystem:
     def _create_loan_underwriting_hierarchy(self):
         """Create the hierarchical agent network for loan underwriting."""
         try:
-            result = self.agent.tool.agent_graph(
+            result = self.agent.tool.graph(
                 action="create",
                 graph_id=self.graph_id,
+                model_provider="bedrock",
+                model_settings={"model_id": "us.anthropic.claude-3-5-sonnet-20241022-v2:0"},
                 topology={
-                    "type": "hierarchical",
                     "nodes": [
                         {
-                            "id": "loan_underwriting_supervisor_agent",
-                            "role": "executive", 
-                            "model_id": "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
-                            "system_prompt": """
-                            You are the Loan Underwriting Supervisor Agent responsible for orchestrating the complete loan underwriting process. Your responsibilities include:
+                            "id": "loan_underwriting_supervisor",
+                            "role": "supervisor",
+                            "model_provider": "bedrock",
+                            "model_settings": {"model_id": "us.anthropic.claude-3-5-sonnet-20241022-v2:0"},
+                            "system_prompt": """You are the Loan Underwriting Supervisor responsible for making final loan decisions. 
+
+Your responsibilities:
+1. Analyze all loan documents and financial information
+2. Review credit history and payment patterns  
+3. Assess risk factors and fraud indicators
+4. Make final approval/denial decisions
+5. Generate comprehensive underwriting reports
+
+Decision Criteria:
+- Credit score thresholds (typically 620+ for conventional loans)
+- Debt-to-income ratios (typically <43%)
+- Employment stability and income verification
+- Property value and loan-to-value ratio
+- Risk assessment and fraud indicators
+
+Provide clear decisions with supporting rationale."""
+                        },
+                        {
+                            "id": "financial_analyst",
+                            "role": "analyst",
+                            "model_provider": "bedrock",
+                            "model_settings": {"model_id": "us.anthropic.claude-3-5-haiku-20241022-v1:0"},
+                            "system_prompt": """You are a Financial Analyst specializing in loan underwriting.
 
                             1. Receive and validate loan applications
                             2. Coordinate with manager agents to execute underwriting tasks
@@ -615,28 +639,20 @@ class HierarchicalLoanUnderwritingSystem:
                         }
                     ],
                     "edges": [
-                        # Supervisor to managers
-                        {"from": "loan_underwriting_supervisor_agent", "to": "financial_analysis_manager"},
-                        {"from": "loan_underwriting_supervisor_agent", "to": "risk_analysis_manager"},
-                        {"from": "loan_underwriting_supervisor_agent", "to": "policy_documentation_agent"},
+                        # Supervisor to managers (one-way delegation for DAG)
+                        {"from": "loan_underwriting_supervisor", "to": "financial_analysis_manager"},
+                        {"from": "loan_underwriting_supervisor", "to": "risk_analysis_manager"},
+                        {"from": "loan_underwriting_supervisor", "to": "policy_documentation_agent"},
                         
-                        # Financial analysis hierarchy
+                        # Financial analysis hierarchy (one-way for DAG)
                         {"from": "financial_analysis_manager", "to": "credit_assessment_agent"},
                         {"from": "financial_analysis_manager", "to": "verification_agent"},
-                        {"from": "credit_assessment_agent", "to": "financial_analysis_manager"},
-                        {"from": "verification_agent", "to": "financial_analysis_manager"},
                         
-                        # Risk analysis hierarchy  
+                        # Risk analysis hierarchy (one-way for DAG)
                         {"from": "risk_analysis_manager", "to": "risk_calculation_agent"},
-                        {"from": "risk_analysis_manager", "to": "fraud_detection_agent"},
-                        {"from": "risk_calculation_agent", "to": "risk_analysis_manager"},
-                        {"from": "fraud_detection_agent", "to": "risk_analysis_manager"},
-                        
-                        # Manager to supervisor reporting
-                        {"from": "financial_analysis_manager", "to": "loan_underwriting_supervisor_agent"},
-                        {"from": "risk_analysis_manager", "to": "loan_underwriting_supervisor_agent"},
-                        {"from": "policy_documentation_agent", "to": "loan_underwriting_supervisor_agent"}
-                    ]
+                        {"from": "risk_analysis_manager", "to": "fraud_detection_agent"}
+                    ],
+                    "entry_points": ["loan_underwriting_supervisor"]
                 }
             )
             
@@ -699,7 +715,7 @@ class HierarchicalLoanUnderwritingSystem:
         
         try:
             print("🔍 Initiating comprehensive loan analysis...")
-            result = self.agent.tool.agent_graph(
+            result = self.agent.tool.graph(
                 action="message",
                 graph_id=self.graph_id,
                 message={
@@ -879,7 +895,7 @@ class HierarchicalLoanUnderwritingSystem:
             return {"status": "demo", "message": "Running in demo mode"}
         
         try:
-            status_result = self.agent.tool.agent_graph(
+            status_result = self.agent.tool.graph(
                 action="status",
                 graph_id=self.graph_id
             )
@@ -894,7 +910,7 @@ class HierarchicalLoanUnderwritingSystem:
             return
         
         try:
-            result = self.agent.tool.agent_graph(
+            result = self.agent.tool.graph(
                 action="stop",
                 graph_id=self.graph_id
             )

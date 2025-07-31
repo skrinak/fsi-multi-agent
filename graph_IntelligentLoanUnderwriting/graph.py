@@ -28,7 +28,7 @@ try:
     import PyPDF2
     import yaml
     from strands import Agent
-    from strands_tools import agent_graph
+    from strands_tools import graph
     DEPENDENCIES_AVAILABLE = True
 except ImportError:
     print("Warning: Some dependencies not available. Running in demonstration mode.")
@@ -373,7 +373,7 @@ class StarTopologyImplementation:
     def __init__(self):
         """Initialize the star topology implementation."""
         if DEPENDENCIES_AVAILABLE:
-            self.agent = Agent(tools=[agent_graph])
+            self.agent = Agent(tools=[graph])
         else:
             self.agent = None
             print("Running in demo mode - Strands not available")
@@ -391,7 +391,7 @@ class StarTopologyImplementation:
         if not DEPENDENCIES_AVAILABLE:
             return {"status": "demo", "message": "Would create research team graph"}
         
-        result = self.agent.tool.agent_graph(
+        result = self.agent.tool.graph(
             action="create",
             graph_id=graph_id,
             topology={
@@ -463,7 +463,7 @@ class StarTopologyImplementation:
             return pdf_data
         
         # Send analysis task to coordinator
-        analysis_result = self.agent.tool.agent_graph(
+        analysis_result = self.agent.tool.graph(
             action="message",
             graph_id=graph_id,
             message={
@@ -498,7 +498,7 @@ class MeshTopologyImplementation:
     def __init__(self):
         """Initialize the mesh topology implementation."""
         if DEPENDENCIES_AVAILABLE:
-            self.agent = Agent(tools=[agent_graph])
+            self.agent = Agent(tools=[graph])
         else:
             self.agent = None
             print("Running in demo mode - Strands not available")
@@ -516,7 +516,7 @@ class MeshTopologyImplementation:
         if not DEPENDENCIES_AVAILABLE:
             return {"status": "demo", "message": "Would create decision committee graph"}
         
-        result = self.agent.tool.agent_graph(
+        result = self.agent.tool.graph(
             action="create",
             graph_id=graph_id,
             topology={
@@ -615,7 +615,7 @@ class MeshTopologyImplementation:
         experts = ["financial_advisor", "technical_architect", "market_researcher", "risk_analyst"]
         
         for expert in experts:
-            response = self.agent.tool.agent_graph(
+            response = self.agent.tool.graph(
                 action="message", 
                 graph_id=graph_id,
                 message={
@@ -649,7 +649,7 @@ class HierarchicalTopologyImplementation:
     def __init__(self):
         """Initialize the hierarchical topology implementation."""
         if DEPENDENCIES_AVAILABLE:
-            self.agent = Agent(tools=[agent_graph])
+            self.agent = Agent(tools=[graph])
         else:
             self.agent = None
             print("Running in demo mode - Strands not available")
@@ -667,7 +667,7 @@ class HierarchicalTopologyImplementation:
         if not DEPENDENCIES_AVAILABLE:
             return {"status": "demo", "message": "Would create consulting firm graph"}
         
-        result = self.agent.tool.agent_graph(
+        result = self.agent.tool.graph(
             action="create",
             graph_id=graph_id,
             topology={
@@ -791,7 +791,7 @@ class HierarchicalTopologyImplementation:
             return {"status": "demo", "message": "Would process client engagement"}
         
         # Send engagement to managing partner
-        partner_response = self.agent.tool.agent_graph(
+        partner_response = self.agent.tool.graph(
             action="message",
             graph_id=graph_id,
             message={
@@ -831,7 +831,7 @@ class NaturalLanguageInterface:
     def __init__(self):
         """Initialize the natural language interface."""
         if DEPENDENCIES_AVAILABLE:
-            self.agent = Agent(tools=[agent_graph])
+            self.agent = Agent(tools=[graph])
         else:
             self.agent = None
             print("Running in demo mode - Strands not available")

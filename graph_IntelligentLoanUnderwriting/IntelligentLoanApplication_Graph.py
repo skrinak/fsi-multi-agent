@@ -266,9 +266,26 @@ class LoanDocumentProcessor:
                 }
         
         except FileNotFoundError:
+            # Try alternative filename patterns for common variations
+            alternative_paths = []
+            
+            # Check for Joe vs John name variations
+            if "JoeDoe" in file_path:
+                alt_path = file_path.replace("JoeDoe", "JohnDoe")
+                alternative_paths.append(alt_path)
+            elif "JohnDoe" in file_path:
+                alt_path = file_path.replace("JohnDoe", "JoeDoe")
+                alternative_paths.append(alt_path)
+            
+            # Try alternative paths
+            for alt_path in alternative_paths:
+                if os.path.exists(alt_path):
+                    print(f"📄 Found alternative file: {alt_path}")
+                    return LoanDocumentProcessor.read_loan_pdf(alt_path)
+            
             return {
                 "status": "error",
-                "message": f"Loan document not found: {file_path}",
+                "message": f"Loan document not found: {file_path} (also checked alternatives: {alternative_paths})",
                 "text": "",
                 "pages": 0
             }
@@ -1172,14 +1189,18 @@ def demonstrate_loan_underwriting_system():
     underwriting_system = HierarchicalLoanUnderwritingSystem("demo_loan_system")
     
     # Sample loan application documents
+    # Use relative paths from the module's directory
+    module_dir = os.path.dirname(os.path.abspath(__file__))
+    data_dir = os.path.join(module_dir, "data")
+    
     sample_documents = {
-        "credit_report": "data/JoeDoeCreditReport.pdf",
-        "bank_statement": "data/JoeDoeBankStatement.pdf",
-        "pay_stub": "data/JoeDoePayStub.pdf",
-        "tax_return": "data/JoeDoeTaxes.pdf",
-        "loan_application": "data/JoeDoeLoanApplication.pdf",
-        "property_info": "data/JoeDoePropertyInfo.pdf",
-        "id_verification": "data/JoeDoeIDVerification.pdf"
+        "credit_report": os.path.join(data_dir, "JoeDoeCreditReport.pdf"),
+        "bank_statement": os.path.join(data_dir, "JoeDoeBankStatement.pdf"),
+        "pay_stub": os.path.join(data_dir, "JoeDoePayStub.pdf"),
+        "tax_return": os.path.join(data_dir, "JoeDoeTaxes.pdf"),
+        "loan_application": os.path.join(data_dir, "JoeDoeLoanApplication.pdf"),
+        "property_info": os.path.join(data_dir, "JoeDoePropertyInfo.pdf"),
+        "id_verification": os.path.join(data_dir, "JoeDoeIDVerification.pdf")
     }
     
     print("\n📋 Processing loan application for Joe Doe...")

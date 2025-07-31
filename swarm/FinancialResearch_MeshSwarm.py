@@ -199,11 +199,16 @@ class FinancialReportProcessor:
                 }
         
         except FileNotFoundError:
+            # Provide helpful information about where the file should be located
+            module_dir = os.path.dirname(os.path.abspath(__file__))
+            expected_path = os.path.join(module_dir, "data", os.path.basename(file_path))
+            
             return {
                 "status": "error",
-                "message": f"Financial document not found: {file_path}",
+                "message": f"Financial document not found: {file_path} (expected location: {expected_path})",
                 "text": "",
-                "pages": 0
+                "pages": 0,
+                "suggestion": f"Please ensure the document is placed in the correct directory: {os.path.dirname(expected_path)}"
             }
         except Exception as e:
             return {
@@ -804,7 +809,9 @@ def demonstrate_financial_mesh_swarm():
     print("=" * 60)
     
     # Sample financial document path
-    sample_document_path = "data/amzn-20241231-10K-Part-1&2.pdf"
+    # Use relative path from the module's directory
+    module_dir = os.path.dirname(os.path.abspath(__file__))
+    sample_document_path = os.path.join(module_dir, "data", "amzn-20241231-10K-Part-1&2.pdf")
     
     # Load and process financial document
     print("📄 Loading financial document...")

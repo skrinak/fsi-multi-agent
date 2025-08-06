@@ -1,0 +1,16 @@
+{
+    "claim_id": "TEST_FULL_001",
+    "policy_number": "POL-987654321",
+    "claimant_name": "Test User",
+    "claimant_contact": "555-0123",
+    "incident_date": "2024-07-20",
+    "incident_location": "123 Main St, Test City, ST 12345",
+    "incident_description": "Vehicle accident at intersection during normal driving conditions",
+    "damage_description": "Front bumper damage and headlight replacement, estimated $3,500",
+    "witnesses": ["Jane Witness - 555-0456"],
+    "police_report_number": "PR-2024-1234",
+    "supporting_documents": ["photos", "police_report"],
+    "reported_date": "2024-07-20",
+    "policy_effective_date": "2024-01-01",
+    "policy_expiration_date": "2024-12-31"
+}
